@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { DotLoader } from "@/components/ui/skeleton/dot-loader";
+import { useProfile } from "@/contexts/profile-context";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/utils/constants/routes";
 import { useQuery } from "@tanstack/react-query";
@@ -62,14 +63,13 @@ function ProfileAvatar({ profile }: { profile: ProfileResponse }) {
 export default function ProfilesSelectPage() {
   const router = useRouter();
   const { data: auth, isFetching } = useQuery(query.user.whoami());
-  const profiles = useMemo(() => auth?.profiles || [], [auth?.profiles]);
-  const activeProfileId = auth?.activeProfileId || null;
-  const canCreateMore = profiles.length < MAX_PROFILES;
+  const { profiles, activeProfileId, selectProfile } = useProfile();
+  const profilesFromAuth = useMemo(() => auth?.profiles || profiles, [auth?.profiles, profiles]);
+  const canCreateMore = profilesFromAuth.length < MAX_PROFILES;
 
   const [newProfileName, setNewProfileName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
 
-  const { mutateAsync: selectProfile, isPending: isSelecting } = mutation.profile.select();
   const { mutateAsync: createProfile, isPending: isCreatingProfile } = mutation.profile.create();
 
   const handleSelectProfile = async (profileId: string) => {
@@ -131,14 +131,14 @@ export default function ProfilesSelectPage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {profiles.map((profile) => {
+              {profilesFromAuth.map((profile) => {
                 const isActive = activeProfileId === profile._id;
                 return (
                   <button
                     key={profile._id}
                     type="button"
                     onClick={() => handleSelectProfile(profile._id)}
-                    disabled={isSelecting || isCreatingProfile}
+                    disabled={isCreatingProfile}
                     className={cn(
                       "group rounded-2xl border p-5 text-left transition-all duration-200",
                       "hover:-translate-y-0.5 hover:border-sky-300 hover:shadow-lg",
