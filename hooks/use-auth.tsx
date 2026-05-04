@@ -1,8 +1,8 @@
 'use client'
 import { query } from '@/api/query'
-import { SESSION_ID } from '@/utils/constants/keys'
+import { ACTIVE_PROFILE_ID, SESSION_ID } from '@/utils/constants/keys'
 import { useQuery } from '@tanstack/react-query'
-import { usePathname,  } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 export const useAuth = () => {
@@ -12,8 +12,14 @@ export const useAuth = () => {
 
   useEffect(() => {
     const sessionToken = localStorage.getItem(SESSION_ID)
-    setIsAuth(res?.isLoggedIn ?? !!sessionToken)
+    const activeProfileId = localStorage.getItem(ACTIVE_PROFILE_ID)
+    const isLoggedIn = res?.isLoggedIn ?? !!sessionToken
+    const hasProfile = Boolean(res?.activeProfile?._id || activeProfileId)
+    setIsAuth(isLoggedIn && hasProfile)
   }, [res, pathname])
 
-  return { isAuth }
+  return {
+    isAuth,
+    authState: res,
+  }
 }

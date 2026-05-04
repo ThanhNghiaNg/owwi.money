@@ -1,4 +1,3 @@
-
 export type TableResponse<T> = {
     data: T[];
     nextCursor: string | null,
@@ -24,6 +23,10 @@ export interface TransactionResponse {
     description: string;
     isDone: boolean;
     date: string;
+    createdByProfile?: {
+        profileId: string;
+        name: string;
+    };
 }
 
 export type PartnerResponse = {

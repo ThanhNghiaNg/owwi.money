@@ -11,12 +11,12 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   const { data: res, isFetching } = useQuery(query.user.whoami());
 
   useEffect(() => {
-    if (!isFetching && res && !res.isLoggedIn) {
+    if (!isFetching && res && (!res.isLoggedIn || !res.activeProfile?._id)) {
       router.replace("/login");
     }
   }, [res, isFetching, router]);
 
-  if (isFetching || !res?.isLoggedIn) return <DotLoader />;  // Block UI until check done
+  if (isFetching || !res?.isLoggedIn || !res.activeProfile?._id) return <DotLoader />;
 
   return <>{children}</>;
 }
