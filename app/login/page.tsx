@@ -18,7 +18,7 @@ import { ProfileResponse } from "@/api/user"
 
 function LoginPage() {
     const router = useRouter()
-    const { isAuth } = useAuth()
+    const { isAuth, authState, isFetchingAuth } = useAuth()
     const { theme, toggleTheme } = useTheme()
 
     const { mutateAsync: login, isPending: isLoggingIn } = mutation.user.login()
@@ -29,10 +29,17 @@ function LoginPage() {
     const isPending = isLoggingIn || isSelectingProfile
 
     useEffect(() => {
-        if (isAuth) {
-            router.push(ROUTES.HOME)
+        if (!isFetchingAuth && isAuth) {
+            router.replace(ROUTES.DASHBOARD)
         }
-    }, [isAuth, router])
+    }, [isAuth, isFetchingAuth, router])
+
+    useEffect(() => {
+        if (!isFetchingAuth && authState?.isLoggedIn && !authState?.activeProfile?._id) {
+            setAvailableProfiles(authState.profiles || [])
+            setSelectedProfileId((current) => current || authState.profiles?.[0]?._id || "")
+        }
+    }, [authState, isFetchingAuth])
 
     const canSelectProfile = useMemo(() => availableProfiles.length > 0, [availableProfiles])
 
@@ -51,7 +58,7 @@ function LoginPage() {
 
                 const selected = await selectProfile(selectedProfileId)
                 localStorage.setItem(ACTIVE_PROFILE_ID, selected.activeProfile._id)
-                router.push(ROUTES.HOME)
+                router.replace(ROUTES.DASHBOARD)
                 return
             }
 
@@ -66,11 +73,12 @@ function LoginPage() {
 
             if (res.activeProfile?._id) {
                 localStorage.setItem(ACTIVE_PROFILE_ID, res.activeProfile._id)
-                router.push(ROUTES.HOME)
+                router.replace(ROUTES.DASHBOARD)
                 return
             }
 
             if (res.profiles?.length) {
+                localStorage.removeItem(ACTIVE_PROFILE_ID)
                 setAvailableProfiles(res.profiles)
                 setSelectedProfileId(res.profiles[0]?._id || "")
                 setErrorMessage("Tài khoản này có nhiều profile. Hãy chọn profile rồi bấm Sign In lần nữa.")

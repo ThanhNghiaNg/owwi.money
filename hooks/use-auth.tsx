@@ -8,18 +8,36 @@ import { useEffect, useState } from 'react'
 export const useAuth = () => {
   const [isAuth, setIsAuth] = useState(false)
   const pathname = usePathname()
-  const { data: res } = useQuery(query.user.whoami())
+  const { data: res, isFetching } = useQuery(query.user.whoami())
 
   useEffect(() => {
     const sessionToken = localStorage.getItem(SESSION_ID)
     const activeProfileId = localStorage.getItem(ACTIVE_PROFILE_ID)
-    const isLoggedIn = res?.isLoggedIn ?? !!sessionToken
-    const hasProfile = Boolean(res?.activeProfile?._id || activeProfileId)
-    setIsAuth(isLoggedIn && hasProfile)
-  }, [res, pathname])
+
+    if (isFetching && !res) {
+      setIsAuth(Boolean(sessionToken && activeProfileId))
+      return
+    }
+
+    if (!res?.isLoggedIn) {
+      localStorage.removeItem(ACTIVE_PROFILE_ID)
+      setIsAuth(false)
+      return
+    }
+
+    if (res.activeProfile?._id) {
+      localStorage.setItem(ACTIVE_PROFILE_ID, res.activeProfile._id)
+      setIsAuth(true)
+      return
+    }
+
+    localStorage.removeItem(ACTIVE_PROFILE_ID)
+    setIsAuth(false)
+  }, [res, isFetching, pathname])
 
   return {
     isAuth,
     authState: res,
+    isFetchingAuth: isFetching,
   }
 }
