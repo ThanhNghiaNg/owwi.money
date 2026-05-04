@@ -8,6 +8,11 @@ type UserLoginResponse = AuthPayload & {
     name: string;
     role: string;
 }
+
+type UserRegisterResponse = {
+    message: string;
+}
+
 export const userLogin = async (params: {username: string, password: string}): Promise<UserLoginResponse> => {
     return axiosInstance.post<UserLoginResponse, any>(`/login`, {
         ...params,
@@ -19,8 +24,8 @@ export const userLogout = async () => {
     return axiosInstance.post(`/logout`);
 }
 
-export const userRegister = async (params: {username: string, password: string}) => {
-    return axiosInstance.post<any, UserLoginResponse>(`/register`, params);
+export const userRegister = async (params: {username: string, password: string}): Promise<UserRegisterResponse> => {
+    return axiosInstance.post<any, UserRegisterResponse>(`/register`, params);
 }
 
 type WhoamiResponse = {

@@ -2,6 +2,7 @@
 
 import { mutation } from "@/api/mutate";
 import { query } from "@/api/query";
+import queryClient from "@/api/queryClient";
 import { ProfileResponse } from "@/api/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -182,6 +183,8 @@ export default function ProfilesSelectPage() {
       const res = await deleteProfile(profile._id);
       if (res.activeProfileId) {
         await selectProfile(res.activeProfileId);
+      } else {
+        await queryClient.refetchQueries({ queryKey: query.user.whoami().queryKey });
       }
       toast.success("Profile deleted.");
     } catch (error) {
