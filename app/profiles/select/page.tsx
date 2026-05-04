@@ -12,7 +12,7 @@ import { useProfile } from "@/contexts/profile-context";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/utils/constants/routes";
 import { useQuery } from "@tanstack/react-query";
-import { Plus, UserCircle2 } from "lucide-react";
+import { Pencil, Plus, Trash2, UserCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
@@ -69,8 +69,12 @@ export default function ProfilesSelectPage() {
 
   const [newProfileName, setNewProfileName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [editingProfileId, setEditingProfileId] = useState<string | null>(null);
+  const [editingProfileName, setEditingProfileName] = useState("");
 
   const { mutateAsync: createProfile, isPending: isCreatingProfile } = mutation.profile.create();
+  const { mutateAsync: updateProfile, isPending: isUpdatingProfile } = mutation.profile.update();
+  const { mutateAsync: deleteProfile, isPending: isDeletingProfile } = mutation.profile.delete();
 
   const handleSelectProfile = async (profileId: string) => {
     try {
@@ -100,6 +104,51 @@ export default function ProfilesSelectPage() {
     } catch (error) {
       console.error(error);
       toast.error("Cannot create profile right now.");
+    }
+  };
+
+  const handleStartEdit = (profile: ProfileResponse) => {
+    setEditingProfileId(profile._id);
+    setEditingProfileName(profile.name);
+  };
+
+  const handleSaveEdit = async (profile: ProfileResponse) => {
+    const name = editingProfileName.trim();
+    if (!name) {
+      toast.error("Please enter profile name.");
+      return;
+    }
+
+    try {
+      await updateProfile({
+        id: profile._id,
+        name,
+        color: profile.color || getStableColor(name),
+      });
+      setEditingProfileId(null);
+      setEditingProfileName("");
+      toast.success("Profile updated.");
+    } catch (error) {
+      console.error(error);
+      toast.error("Cannot update profile right now.");
+    }
+  };
+
+  const handleDeleteProfile = async (profile: ProfileResponse) => {
+    const confirmed = window.confirm(`Delete profile \"${profile.name}\"?`);
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const res = await deleteProfile(profile._id);
+      if (res.activeProfileId) {
+        await selectProfile(res.activeProfileId);
+      }
+      toast.success("Profile deleted.");
+    } catch (error) {
+      console.error(error);
+      toast.error("Cannot delete profile right now.");
     }
   };
 
@@ -133,36 +182,99 @@ export default function ProfilesSelectPage() {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {profilesFromAuth.map((profile) => {
                 const isActive = activeProfileId === profile._id;
+                const isEditing = editingProfileId === profile._id;
+                const isBusy = isCreatingProfile || isUpdatingProfile || isDeletingProfile;
+
                 return (
-                  <button
+                  <div
                     key={profile._id}
-                    type="button"
-                    onClick={() => handleSelectProfile(profile._id)}
-                    disabled={isCreatingProfile}
                     className={cn(
-                      "group rounded-2xl border p-5 text-left transition-all duration-200",
-                      "hover:-translate-y-0.5 hover:border-sky-300 hover:shadow-lg",
-                      "focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900",
+                      "rounded-2xl border p-5 transition-all duration-200",
                       isActive
                         ? "border-sky-500 bg-sky-50 shadow-md dark:border-sky-400 dark:bg-sky-950/40"
                         : "border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800/80"
                     )}
                   >
-                    <div className="flex items-center gap-4">
-                      <ProfileAvatar profile={profile} />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="truncate text-base font-semibold text-gray-900 dark:text-white">{profile.name}</p>
-                          {profile.isDefault ? (
-                            <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-700 dark:bg-sky-900/40 dark:text-sky-300">
-                              Default
-                            </span>
-                          ) : null}
+                    <div className="flex items-start justify-between gap-3">
+                      <button
+                        type="button"
+                        onClick={() => handleSelectProfile(profile._id)}
+                        disabled={isBusy}
+                        className="flex flex-1 items-center gap-4 text-left"
+                      >
+                        <ProfileAvatar profile={profile} />
+                        <div className="min-w-0 flex-1">
+                          {isEditing ? (
+                            <Input
+                              autoFocus
+                              value={editingProfileName}
+                              onChange={(e) => setEditingProfileName(e.target.value)}
+                              onClick={(e) => e.stopPropagation()}
+                              maxLength={40}
+                            />
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <p className="truncate text-base font-semibold text-gray-900 dark:text-white">{profile.name}</p>
+                              {profile.isDefault ? (
+                                <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-700 dark:bg-sky-900/40 dark:text-sky-300">
+                                  Default
+                                </span>
+                              ) : null}
+                            </div>
+                          )}
+                          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Profile</p>
                         </div>
-                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Profile</p>
+                      </button>
+
+                      <div className="flex items-center gap-1">
+                        {isEditing ? null : (
+                          <button
+                            type="button"
+                            onClick={() => handleStartEdit(profile)}
+                            className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-sky-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-sky-300"
+                            disabled={isBusy}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                        )}
+                        {!profile.isDefault ? (
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteProfile(profile)}
+                            className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:text-gray-400 dark:hover:bg-rose-950/30 dark:hover:text-rose-300"
+                            disabled={isBusy}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        ) : null}
                       </div>
                     </div>
-                  </button>
+
+                    {isEditing ? (
+                      <div className="mt-4 flex gap-2">
+                        <Button
+                          type="button"
+                          className="flex-1"
+                          onClick={() => handleSaveEdit(profile)}
+                          disabled={isUpdatingProfile}
+                        >
+                          {isUpdatingProfile ? "Saving..." : "Save"}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => {
+                            setEditingProfileId(null);
+                            setEditingProfileName("");
+                          }}
+                          disabled={isUpdatingProfile}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    ) : null}
+                  </div>
                 );
               })}
 
