@@ -32,8 +32,8 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     isLoading: isFetching,
     selectProfile: async (profileId: string) => {
       await selectProfileMutation(profileId);
+      await queryClient.refetchQueries({ queryKey: queryKeys.userWhoami() });
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() }),
         queryClient.invalidateQueries({ queryKey: queryKeys.activeProfile() }),
         queryClient.invalidateQueries({ queryKey: queryKeys.transactions() }),
         queryClient.invalidateQueries({ queryKey: queryKeys.transactions_statistic_weekly() }),
