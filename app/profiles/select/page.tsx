@@ -12,6 +12,7 @@ import { useProfile } from "@/contexts/profile-context";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/utils/constants/routes";
 import { useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import { Pencil, Plus, Trash2, UserCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -44,6 +45,14 @@ function getStableColor(name: string) {
   return PROFILE_COLORS[hash % PROFILE_COLORS.length];
 }
 
+function getErrorMessage(error: unknown, fallback: string) {
+  if (error instanceof AxiosError) {
+    return error.response?.data?.message || fallback;
+  }
+
+  return fallback;
+}
+
 function ProfileAvatar({ profile }: { profile: ProfileResponse }) {
   const fallbackColor = profile.color || getStableColor(profile.name);
 
@@ -68,32 +77,47 @@ export default function ProfilesSelectPage() {
   const canCreateMore = profilesFromAuth.length < MAX_PROFILES;
 
   const [newProfileName, setNewProfileName] = useState("");
+  const [createError, setCreateError] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [creatingInProgress, setCreatingInProgress] = useState(false);
+  const [selectingProfileId, setSelectingProfileId] = useState<string | null>(null);
   const [editingProfileId, setEditingProfileId] = useState<string | null>(null);
   const [editingProfileName, setEditingProfileName] = useState("");
+  const [editingError, setEditingError] = useState("");
+  const [updatingProfileId, setUpdatingProfileId] = useState<string | null>(null);
+  const [deletingProfileId, setDeletingProfileId] = useState<string | null>(null);
+  const [rowActionError, setRowActionError] = useState<Record<string, string>>({});
 
-  const { mutateAsync: createProfile, isPending: isCreatingProfile } = mutation.profile.create();
-  const { mutateAsync: updateProfile, isPending: isUpdatingProfile } = mutation.profile.update();
-  const { mutateAsync: deleteProfile, isPending: isDeletingProfile } = mutation.profile.delete();
+  const { mutateAsync: createProfile } = mutation.profile.create();
+  const { mutateAsync: updateProfile } = mutation.profile.update();
+  const { mutateAsync: deleteProfile } = mutation.profile.delete();
 
   const handleSelectProfile = async (profileId: string) => {
     try {
+      setSelectingProfileId(profileId);
+      setRowActionError((prev) => ({ ...prev, [profileId]: "" }));
       await selectProfile(profileId);
       router.push(ROUTES.DASHBOARD);
     } catch (error) {
       console.error(error);
-      toast.error("Cannot select profile right now.");
+      const message = getErrorMessage(error, "Cannot select profile right now.");
+      setRowActionError((prev) => ({ ...prev, [profileId]: message }));
+      toast.error(message);
+    } finally {
+      setSelectingProfileId(null);
     }
   };
 
   const handleCreateProfile = async () => {
     const name = newProfileName.trim();
     if (!name) {
-      toast.error("Please enter profile name.");
+      setCreateError("Please enter profile name.");
       return;
     }
 
     try {
+      setCreateError("");
+      setCreatingInProgress(true);
       const profile = await createProfile({
         name,
         color: getStableColor(name),
@@ -103,23 +127,29 @@ export default function ProfilesSelectPage() {
       await handleSelectProfile(profile._id);
     } catch (error) {
       console.error(error);
-      toast.error("Cannot create profile right now.");
+      setCreateError(getErrorMessage(error, "Cannot create profile right now."));
+    } finally {
+      setCreatingInProgress(false);
     }
   };
 
   const handleStartEdit = (profile: ProfileResponse) => {
     setEditingProfileId(profile._id);
     setEditingProfileName(profile.name);
+    setEditingError("");
+    setRowActionError((prev) => ({ ...prev, [profile._id]: "" }));
   };
 
   const handleSaveEdit = async (profile: ProfileResponse) => {
     const name = editingProfileName.trim();
     if (!name) {
-      toast.error("Please enter profile name.");
+      setEditingError("Please enter profile name.");
       return;
     }
 
     try {
+      setEditingError("");
+      setUpdatingProfileId(profile._id);
       await updateProfile({
         id: profile._id,
         name,
@@ -127,10 +157,16 @@ export default function ProfilesSelectPage() {
       });
       setEditingProfileId(null);
       setEditingProfileName("");
+      setRowActionError((prev) => ({ ...prev, [profile._id]: "" }));
+      if (activeProfileId === profile._id) {
+        await selectProfile(profile._id);
+      }
       toast.success("Profile updated.");
     } catch (error) {
       console.error(error);
-      toast.error("Cannot update profile right now.");
+      setEditingError(getErrorMessage(error, "Cannot update profile right now."));
+    } finally {
+      setUpdatingProfileId(null);
     }
   };
 
@@ -141,6 +177,8 @@ export default function ProfilesSelectPage() {
     }
 
     try {
+      setDeletingProfileId(profile._id);
+      setRowActionError((prev) => ({ ...prev, [profile._id]: "" }));
       const res = await deleteProfile(profile._id);
       if (res.activeProfileId) {
         await selectProfile(res.activeProfileId);
@@ -148,7 +186,12 @@ export default function ProfilesSelectPage() {
       toast.success("Profile deleted.");
     } catch (error) {
       console.error(error);
-      toast.error("Cannot delete profile right now.");
+      setRowActionError((prev) => ({
+        ...prev,
+        [profile._id]: getErrorMessage(error, "Cannot delete profile right now."),
+      }));
+    } finally {
+      setDeletingProfileId(null);
     }
   };
 
@@ -183,7 +226,11 @@ export default function ProfilesSelectPage() {
               {profilesFromAuth.map((profile) => {
                 const isActive = activeProfileId === profile._id;
                 const isEditing = editingProfileId === profile._id;
-                const isBusy = isCreatingProfile || isUpdatingProfile || isDeletingProfile;
+                const isSelectingThisProfile = selectingProfileId === profile._id;
+                const isUpdatingThisProfile = updatingProfileId === profile._id;
+                const isDeletingThisProfile = deletingProfileId === profile._id;
+                const isBusy = isSelectingThisProfile || isUpdatingThisProfile || isDeletingThisProfile;
+                const inlineError = rowActionError[profile._id] || "";
 
                 return (
                   <div
@@ -199,7 +246,7 @@ export default function ProfilesSelectPage() {
                       <button
                         type="button"
                         onClick={() => handleSelectProfile(profile._id)}
-                        disabled={isBusy}
+                        disabled={isBusy || creatingInProgress}
                         className="flex flex-1 items-center gap-4 text-left"
                       >
                         <ProfileAvatar profile={profile} />
@@ -222,7 +269,9 @@ export default function ProfilesSelectPage() {
                               ) : null}
                             </div>
                           )}
-                          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Profile</p>
+                          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                            {isSelectingThisProfile ? "Opening profile..." : "Profile"}
+                          </p>
                         </div>
                       </button>
 
@@ -232,7 +281,7 @@ export default function ProfilesSelectPage() {
                             type="button"
                             onClick={() => handleStartEdit(profile)}
                             className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-sky-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-sky-300"
-                            disabled={isBusy}
+                            disabled={isBusy || creatingInProgress}
                           >
                             <Pencil className="h-4 w-4" />
                           </button>
@@ -242,7 +291,7 @@ export default function ProfilesSelectPage() {
                             type="button"
                             onClick={() => handleDeleteProfile(profile)}
                             className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-rose-50 hover:text-rose-600 dark:text-gray-400 dark:hover:bg-rose-950/30 dark:hover:text-rose-300"
-                            disabled={isBusy}
+                            disabled={isBusy || creatingInProgress}
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -251,28 +300,38 @@ export default function ProfilesSelectPage() {
                     </div>
 
                     {isEditing ? (
-                      <div className="mt-4 flex gap-2">
-                        <Button
-                          type="button"
-                          className="flex-1"
-                          onClick={() => handleSaveEdit(profile)}
-                          disabled={isUpdatingProfile}
-                        >
-                          {isUpdatingProfile ? "Saving..." : "Save"}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="flex-1"
-                          onClick={() => {
-                            setEditingProfileId(null);
-                            setEditingProfileName("");
-                          }}
-                          disabled={isUpdatingProfile}
-                        >
-                          Cancel
-                        </Button>
+                      <div className="mt-4 flex flex-col gap-2">
+                        {editingError ? (
+                          <p className="text-sm text-rose-600 dark:text-rose-400">{editingError}</p>
+                        ) : null}
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            className="flex-1"
+                            onClick={() => handleSaveEdit(profile)}
+                            disabled={isUpdatingThisProfile}
+                          >
+                            {isUpdatingThisProfile ? "Saving..." : "Save"}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="flex-1"
+                            onClick={() => {
+                              setEditingProfileId(null);
+                              setEditingProfileName("");
+                              setEditingError("");
+                            }}
+                            disabled={isUpdatingThisProfile}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
                       </div>
+                    ) : null}
+
+                    {!isEditing && inlineError ? (
+                      <p className="mt-4 text-sm text-rose-600 dark:text-rose-400">{inlineError}</p>
                     ) : null}
                   </div>
                 );
@@ -299,18 +358,24 @@ export default function ProfilesSelectPage() {
                       <Input
                         autoFocus
                         value={newProfileName}
-                        onChange={(e) => setNewProfileName(e.target.value)}
+                        onChange={(e) => {
+                          setNewProfileName(e.target.value);
+                          if (createError) setCreateError("");
+                        }}
                         placeholder="Enter profile name"
                         maxLength={40}
                       />
+                      {createError ? (
+                        <p className="text-sm text-rose-600 dark:text-rose-400">{createError}</p>
+                      ) : null}
                       <div className="flex gap-2">
                         <Button
                           type="button"
                           className="flex-1"
                           onClick={handleCreateProfile}
-                          disabled={isCreatingProfile}
+                          disabled={creatingInProgress}
                         >
-                          {isCreatingProfile ? "Creating..." : "Create"}
+                          {creatingInProgress ? "Creating..." : "Create"}
                         </Button>
                         <Button
                           type="button"
@@ -319,8 +384,9 @@ export default function ProfilesSelectPage() {
                           onClick={() => {
                             setIsCreating(false);
                             setNewProfileName("");
+                            setCreateError("");
                           }}
-                          disabled={isCreatingProfile}
+                          disabled={creatingInProgress}
                         >
                           Cancel
                         </Button>
