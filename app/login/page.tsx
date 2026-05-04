@@ -17,20 +17,22 @@ import { AxiosError } from "axios"
 
 function LoginPage() {
     const router = useRouter()
-    const { isAuth } = useAuth()
-    // const params = useSearchParams()
+    const { isAuth, needsProfileSelection, activeProfileId } = useAuth()
     const { theme, toggleTheme } = useTheme()
 
     const { mutateAsync: login, isPending } = mutation.user.login()
     const [errorMessage, setErrorMessage] = useState<string>();
 
     useEffect(() => {
-        if (isAuth) {
-            // Redirect to dashboard if already authenticated
-            router.push(ROUTES.HOME)
-        }
-    }, [isAuth])
+        if (!isAuth) return
 
+        if (needsProfileSelection || !activeProfileId) {
+            router.push(ROUTES.PROFILES_SELECT)
+            return
+        }
+
+        router.push(ROUTES.DASHBOARD)
+    }, [isAuth, needsProfileSelection, activeProfileId, router])
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         try {
@@ -44,7 +46,7 @@ function LoginPage() {
             })
             if (res.sessionToken) {
                 localStorage.setItem(SESSION_ID, res.sessionToken)
-                router.push(ROUTES.HOME)
+                router.push(ROUTES.PROFILES_SELECT)
             }
         } catch (error) {
             if (error instanceof AxiosError) {
@@ -57,7 +59,6 @@ function LoginPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-sky-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-            {/* Theme Toggle Button */}
             <button
                 onClick={toggleTheme}
                 className="fixed top-4 right-4 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 z-10"
