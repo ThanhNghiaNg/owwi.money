@@ -4,6 +4,7 @@ import { getAllTypes, whoami } from "./user";
 import { Transaction } from "@/lib/types";
 import { getAllCategories } from "./category";
 import { getAllPartners } from "./partners";
+import { createProfile, deleteProfile, getActiveProfile, getProfiles, selectProfile, updateProfile } from "./profile";
 import { FIVE_MINUTE_MILL, ONE_HOUR_MILL } from "@/utils/constants/variables";
 import { TableResponse } from "./types";
 export const keys = {
@@ -20,6 +21,8 @@ export const keys = {
     types: () => [...keys.all, 'types'],
     categories: () => [...keys.all, 'categories'],
     partners: () => [...keys.all, 'partners'],
+    profiles: () => [...keys.all, 'profiles'],
+    activeProfile: () => [...keys.all, 'profiles', 'active'],
 }
 
 export const query = {
@@ -50,6 +53,16 @@ export const query = {
             staleTime: ONE_HOUR_MILL,
         })
     },
+    profile: {
+        getAll: () => queryOptions({
+            queryKey: keys.profiles(),
+            queryFn: getProfiles,
+        }),
+        active: () => queryOptions({
+            queryKey: keys.activeProfile(),
+            queryFn: getActiveProfile,
+        }),
+    },
     transaction: {
         getById: (id: string) =>
             queryOptions({
@@ -60,7 +73,7 @@ export const query = {
             queryKey: keys.transactions(query),
             queryFn: ({ pageParam }: { pageParam: string | null }) => getTransactions({ cursor: pageParam, ...query }),
             initialPageParam: null,
-            staleTime: FIVE_MINUTE_MILL, // 5 minutes
+            staleTime: FIVE_MINUTE_MILL,
             getNextPageParam: (lastPage: TableResponse<Transaction> | any) => {
                 return lastPage?.nextCursor || null
             },
@@ -84,3 +97,12 @@ export const query = {
         }
     },
 };
+
+export const profileApi = {
+    getProfiles,
+    getActiveProfile,
+    selectProfile,
+    createProfile,
+    updateProfile,
+    deleteProfile,
+}

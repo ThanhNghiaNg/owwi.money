@@ -1,12 +1,11 @@
 import { axiosInstance } from "../axios"
-import { TypeResponse } from "../types";
+import { AuthPayload, TypeResponse } from "../types";
 
-
-type UserLoginResponse = {
+type UserLoginResponse = AuthPayload & {
+    message: string;
     sessionToken: string;
     token: string;
-    userId: string;
-    username: string;
+    name: string;
     role: string;
 }
 export const userLogin = async (params: {username: string, password: string}): Promise<UserLoginResponse> => {
@@ -26,11 +25,10 @@ export const userRegister = async (params: {username: string, password: string})
 
 type WhoamiResponse = {
     isLoggedIn: boolean;
-}
+} & Partial<AuthPayload>
 export const whoami = async () => {
     return axiosInstance.get<any, WhoamiResponse>("/whoami");
 }
-
 
 type AllTypeResponse = TypeResponse[]
 export const getAllTypes = async (): Promise<AllTypeResponse> => {

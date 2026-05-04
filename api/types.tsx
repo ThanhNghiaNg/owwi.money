@@ -1,9 +1,36 @@
-
 export type TableResponse<T> = {
     data: T[];
     nextCursor: string | null,
     hasNextPage: boolean;
     limit?: number;
+}
+
+export type ProfileResponse = {
+    _id: string;
+    name: string;
+    avatarUrl?: string;
+    color?: string;
+    isDefault: boolean;
+    order: number;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export type AuthUserResponse = {
+    _id: string;
+    username: string;
+    fullName: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+    isAdmin: boolean;
+}
+
+export type AuthPayload = {
+    user: AuthUserResponse;
+    profiles: ProfileResponse[];
+    activeProfileId: string | null;
+    needsProfileSelection: boolean;
 }
 
 export interface TransactionResponse {
@@ -19,6 +46,12 @@ export interface TransactionResponse {
     partner: {
         _id: string;
         name: string;
+    };
+    createdByProfile?: {
+        _id: string;
+        name: string;
+        avatarUrl?: string;
+        color?: string;
     };
     amount: number;
     description: string;
@@ -41,7 +74,6 @@ export type TypeResponse = {
     name: string;
     description?: string;
 }
-
 
 export type CategoryResponse = {
     _id: string;

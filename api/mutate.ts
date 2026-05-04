@@ -5,6 +5,7 @@ import queryClient from "./queryClient";
 import { keys as queryKeys } from "./query";
 import { createPartner, deletePartner, updatePartner } from "./partners";
 import { createCategory, deleteCategory, updateCategory } from "./category";
+import { createProfile, deleteProfile, selectProfile, updateProfile } from "./profile";
 
 export const MutationKey = {
   user: {
@@ -30,6 +31,13 @@ export const MutationKey = {
     create: () => [...MutationKey.category.mutation, "create"],
     update: () => [...MutationKey.category.mutation, "update"],
     delete: () => [...MutationKey.category.mutation, "delete"],
+  },
+  profile: {
+    mutation: ["profile-mutation"],
+    create: () => [...MutationKey.profile.mutation, "create"],
+    update: () => [...MutationKey.profile.mutation, "update"],
+    delete: () => [...MutationKey.profile.mutation, "delete"],
+    select: () => [...MutationKey.profile.mutation, "select"],
   },
 };
 
@@ -144,5 +152,42 @@ export const mutation = {
         })
       }
     })
+  },
+  profile: {
+    create: () => useMutation({
+      mutationKey: MutationKey.profile.create(),
+      mutationFn: createProfile,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.profiles() })
+        queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() })
+      }
+    }),
+    update: () => useMutation({
+      mutationKey: MutationKey.profile.update(),
+      mutationFn: updateProfile,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.profiles() })
+        queryClient.invalidateQueries({ queryKey: queryKeys.activeProfile() })
+        queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() })
+      }
+    }),
+    delete: () => useMutation({
+      mutationKey: MutationKey.profile.delete(),
+      mutationFn: deleteProfile,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.profiles() })
+        queryClient.invalidateQueries({ queryKey: queryKeys.activeProfile() })
+        queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() })
+      }
+    }),
+    select: () => useMutation({
+      mutationKey: MutationKey.profile.select(),
+      mutationFn: selectProfile,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.activeProfile() })
+        queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() })
+        queryClient.invalidateQueries({ queryKey: queryKeys.transactions() })
+      }
+    }),
   },
 };
