@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useQuery } from "@tanstack/react-query"
 import { query } from "@/api/query"
 import { DoubleBarChart } from "../charts/double-bar-chart"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { BarChart } from "../charts/bar-chart"
 import { useProfile } from "@/contexts/profile-context"
 import { useLanguage } from "@/contexts/language-context"
@@ -18,6 +18,20 @@ export function ExpenseChart() {
   const { data: weekly } = useQuery(query.transaction.statistic.weekly(viewScope))
   const { data: monthly } = useQuery(query.transaction.statistic.monthly(viewScope))
   const { datasets: datasetsWeekly = [], labels: labelsWeekly = [] } = weekly || {}
+
+  const monthlyChartData = useMemo(() => {
+    if (!monthly?.labels?.length || !monthly?.datasets?.length) {
+      return []
+    }
+
+    const primaryDataset = monthly.datasets[0]
+    const values = primaryDataset?.data || []
+
+    return monthly.labels.map((label, index) => ({
+      label,
+      value: Number(values[index] || 0),
+    }))
+  }, [monthly])
 
   return (
     <Card className="w-full">
@@ -54,9 +68,9 @@ export function ExpenseChart() {
               tooltipId="weekly-bar-chart"
             />
           )}
-          {selectedPeriod === "monthly" && monthly && (
+          {selectedPeriod === "monthly" && (
             <BarChart
-              data={monthly}
+              data={monthlyChartData}
               height={280}
               color="#7DD3FC"
               tooltipId="monthly-bar-chart"
