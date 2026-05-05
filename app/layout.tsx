@@ -7,11 +7,12 @@ import { Sidebar } from "@/components/sidebar"
 import { ThemeProvider } from "@/contexts/theme-context"
 import { Toaster } from "react-hot-toast"
 import ClientWrapper from "@/components/client/client-wrapper"
+
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Owwi Money - Personal Finance Manager",
-  description: "Manage your income, expenses, loans and financial goals",
+  title: "OwwiMoney",
+  description: "Multi-profile personal finance manager",
   manifest: "/manifest.json",
   icons: {
     icon: "/icons/favicon.ico",
@@ -26,9 +27,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="vi">
       <head>
-        {/* Inject manifest manually */}
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#ffffff" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
