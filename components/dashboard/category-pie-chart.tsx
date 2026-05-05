@@ -6,20 +6,22 @@ import { useQuery } from "@tanstack/react-query"
 import { query } from "@/api/query"
 import { useMemo, useState } from "react"
 import { PASTEL_COLORS } from "@/utils/constants/variables"
-
-const categoryData = [
-  { name: "Food", value: 2400, color: "#A7F3D0" },
-  { name: "Transport", value: 1200, color: "#FBBF24" },
-  { name: "Entertainment", value: 800, color: "#C4B5FD" },
-  { name: "Shopping", value: 1500, color: "#F9A8D4" },
-  { name: "Bills", value: 900, color: "#7DD3FC" },
-]
+import { useProfile } from "@/contexts/profile-context"
 
 export function CategoryPieChart() {
   const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const { data = [] } = useQuery(query.transaction.statistic.month(month))
+  const { viewScope } = useProfile()
+  const { data } = useQuery(query.transaction.statistic.month(month, viewScope))
+  const chartData = data?.data || []
   const months = useMemo(() => Array.from({ length: 12 }, (_, i) => i + 1), [])
-  const transformData = useMemo(() => data?.map((item, index) => ({ name: item.name, value: item.totalAmount, color: PASTEL_COLORS[index % PASTEL_COLORS.length] })), [data])
+  const transformData = useMemo(
+    () => chartData?.map((item, index) => ({
+      name: item.name,
+      value: item.totalAmount,
+      color: PASTEL_COLORS[index % PASTEL_COLORS.length]
+    })),
+    [chartData]
+  )
 
   return (
     <Card className="w-full">
@@ -34,7 +36,11 @@ export function CategoryPieChart() {
             {months.map((m) => <option key={m} value={m}>Tháng {m}</option>)}
           </select>
         </CardTitle>
-        <p className="text-sm text-gray-600 dark:text-gray-400">Month outcome breakdown by category</p>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          {viewScope === "account"
+            ? "Month outcome breakdown across all profiles"
+            : "Month outcome breakdown by category for this profile"}
+        </p>
       </CardHeader>
       <CardContent className="p-4 pt-0">
         <div className="w-full flex justify-center">
