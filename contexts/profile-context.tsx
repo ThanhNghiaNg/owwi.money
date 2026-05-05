@@ -39,6 +39,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     setViewScope,
     selectProfile: async (profileId: string) => {
       await selectProfileMutation(profileId);
+      setViewScope("profile");
       await queryClient.refetchQueries({ queryKey: queryKeys.userWhoami() });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.activeProfile() }),
