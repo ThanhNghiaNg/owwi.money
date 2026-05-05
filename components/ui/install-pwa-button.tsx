@@ -1,6 +1,7 @@
 "use client";
 import { Download, PictureInPicture } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/contexts/language-context";
 
 declare global {
     interface Window {
@@ -13,6 +14,7 @@ function isIOS() {
 }
 
 export default function InstallOrOpenPWAButton() {
+    const { t } = useLanguage();
     const [mode, setMode] = useState<"hidden" | "install" | "open">(() => {
         if (isIOS()) {
             return "hidden";
@@ -21,22 +23,19 @@ export default function InstallOrOpenPWAButton() {
     });
 
     useEffect(() => {
-        // 1. Nếu đang ở standalone (đã mở app) thì ẩn nút
         if (window.matchMedia("(display-mode: standalone)").matches) {
             setMode("hidden");
             return;
         }
 
-        // 2. Kiểm tra xem app đã cài chưa (chỉ hỗ trợ Android/Chrome)
         if ("getInstalledRelatedApps" in navigator) {
             (navigator as any).getInstalledRelatedApps().then((apps: any[]) => {
                 if (apps.length > 0) {
-                    setMode("open"); // đã cài rồi
+                    setMode("open");
                 }
             });
         }
 
-        // 3. Nếu chưa có thì chờ sự kiện beforeinstallprompt
         const handler = (e: Event) => {
             e.preventDefault();
             window.deferredPrompt = e;
@@ -60,10 +59,8 @@ export default function InstallOrOpenPWAButton() {
     };
 
     const handleOpenApp = () => {
-        // Deep link tới app (custom protocol hoặc universal link)
-
         const now = Date.now();
-        window.location.href = "web+owwi://open"; // ví dụ schema app của bạn
+        window.location.href = "web+owwi://open";
 
         setTimeout(() => {
             if (Date.now() - now < 1500) {
@@ -79,15 +76,14 @@ export default function InstallOrOpenPWAButton() {
             onClick={mode === "install" ? handleInstall : handleOpenApp}
             className="w-full flex items-center justify-start gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
         >
-
-
             {mode === "install" ?
                 <>
                     <Download />
-                    Download App</> :
+                    {t("common.downloadApp")}
+                </> :
                 <>
                     <PictureInPicture />
-                    Open in App
+                    {t("common.openInApp")}
                 </>}
         </button>
     );

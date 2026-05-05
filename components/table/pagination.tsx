@@ -1,5 +1,7 @@
 import React from 'react'
 import { FetchNextPageOptions } from '@tanstack/react-query'
+import { useLanguage } from '@/contexts/language-context'
+
 type TableLoadMoreProps = {
     fetchNextPage: (options?: FetchNextPageOptions) => void,
     isLoading?: boolean,
@@ -7,6 +9,8 @@ type TableLoadMoreProps = {
     defaultLimit?: number
 }
 const TableLoadMore = ({ fetchNextPage, setLimit, isLoading, defaultLimit = 10 }: TableLoadMoreProps) => {
+    const { t } = useLanguage()
+
     if (isLoading) {
         return <div className='loader mt-6' />
     }
@@ -22,7 +26,7 @@ const TableLoadMore = ({ fetchNextPage, setLimit, isLoading, defaultLimit = 10 }
     return (
         <div className="flex items-center mt-6 gap-2">
             <button className="" onClick={() => fetchNextPage()}>
-                Load
+                {t("common.load")}
             </button>
             <select onChange={onChangePageLimit}
                 defaultValue={defaultLimit}
@@ -34,7 +38,7 @@ const TableLoadMore = ({ fetchNextPage, setLimit, isLoading, defaultLimit = 10 }
                 <option value="100">100</option>
             </select>
             <button className="" onClick={() => fetchNextPage()}>
-                more items
+                {t("common.moreItems")}
             </button>
         </div>
     )
