@@ -9,16 +9,18 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/use-auth"
 import { ROUTES } from "@/utils/constants/routes"
 import { SESSION_ID } from "@/utils/constants/keys"
-import { Moon, Sun } from "lucide-react"
+import { Languages, Moon, Sun } from "lucide-react"
 import AuthForm from "@/components/form/auth"
 import toast from "react-hot-toast"
 import { ERROR_MESSAGE } from "@/utils/constants/message"
 import { AxiosError } from "axios"
+import { useLanguage } from "@/contexts/language-context"
 
 function LoginPage() {
     const router = useRouter()
     const { isAuth, needsProfileSelection, activeProfileId } = useAuth()
     const { theme, toggleTheme } = useTheme()
+    const { language, setLanguage, languages, t } = useLanguage()
 
     const { mutateAsync: login, isPending } = mutation.user.login()
     const [errorMessage, setErrorMessage] = useState<string>();
@@ -59,6 +61,22 @@ function LoginPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-sky-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+            <div className="fixed top-4 left-4 z-10 rounded-xl border border-gray-200 bg-white/90 px-3 py-2 shadow-lg dark:border-gray-700 dark:bg-gray-800/90">
+                <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                    <Languages className="h-4 w-4" />
+                    <select
+                        value={language}
+                        onChange={(e) => setLanguage(e.target.value as typeof language)}
+                        className="bg-transparent text-sm outline-none"
+                        aria-label={t("common.language")}
+                    >
+                        {languages.map((item) => (
+                            <option key={item.code} value={item.code}>{item.label}</option>
+                        ))}
+                    </select>
+                </div>
+            </div>
+
             <button
                 onClick={toggleTheme}
                 className="fixed top-4 right-4 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 z-10"

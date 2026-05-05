@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { DotLoader } from "@/components/ui/skeleton/dot-loader";
+import { useLanguage } from "@/contexts/language-context";
 import { useProfile } from "@/contexts/profile-context";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/utils/constants/routes";
@@ -72,6 +73,7 @@ function ProfileAvatar({ profile }: { profile: ProfileResponse }) {
 
 export default function ProfilesSelectPage() {
   const router = useRouter();
+  const { t } = useLanguage();
   const { data: auth, isFetching } = useQuery(query.user.whoami());
   const { profiles, activeProfileId, selectProfile } = useProfile();
   const profilesFromAuth = useMemo(() => auth?.profiles || profiles, [auth?.profiles, profiles]);
@@ -101,7 +103,7 @@ export default function ProfilesSelectPage() {
       router.push(ROUTES.DASHBOARD);
     } catch (error) {
       console.error(error);
-      const message = getErrorMessage(error, "Cannot select profile right now.");
+      const message = getErrorMessage(error, t("profile.errorSelect"));
       setRowActionError((prev) => ({ ...prev, [profileId]: message }));
       toast.error(message);
     } finally {
@@ -112,7 +114,7 @@ export default function ProfilesSelectPage() {
   const handleCreateProfile = async () => {
     const name = newProfileName.trim();
     if (!name) {
-      setCreateError("Please enter profile name.");
+      setCreateError(t("profile.errorEnterName"));
       return;
     }
 
@@ -128,7 +130,7 @@ export default function ProfilesSelectPage() {
       await handleSelectProfile(profile._id);
     } catch (error) {
       console.error(error);
-      setCreateError(getErrorMessage(error, "Cannot create profile right now."));
+      setCreateError(getErrorMessage(error, t("profile.errorCreate")));
     } finally {
       setCreatingInProgress(false);
     }
@@ -144,7 +146,7 @@ export default function ProfilesSelectPage() {
   const handleSaveEdit = async (profile: ProfileResponse) => {
     const name = editingProfileName.trim();
     if (!name) {
-      setEditingError("Please enter profile name.");
+      setEditingError(t("profile.errorEnterName"));
       return;
     }
 
@@ -162,17 +164,17 @@ export default function ProfilesSelectPage() {
       if (activeProfileId === profile._id) {
         await selectProfile(profile._id);
       }
-      toast.success("Profile updated.");
+      toast.success(t("profile.updated"));
     } catch (error) {
       console.error(error);
-      setEditingError(getErrorMessage(error, "Cannot update profile right now."));
+      setEditingError(getErrorMessage(error, t("profile.errorUpdate")));
     } finally {
       setUpdatingProfileId(null);
     }
   };
 
   const handleDeleteProfile = async (profile: ProfileResponse) => {
-    const confirmed = window.confirm(`Delete profile \"${profile.name}\"?`);
+    const confirmed = window.confirm(t("profile.deleteConfirm", { name: profile.name }));
     if (!confirmed) {
       return;
     }
@@ -186,12 +188,12 @@ export default function ProfilesSelectPage() {
       } else {
         await queryClient.refetchQueries({ queryKey: query.user.whoami().queryKey });
       }
-      toast.success("Profile deleted.");
+      toast.success(t("profile.deleted"));
     } catch (error) {
       console.error(error);
       setRowActionError((prev) => ({
         ...prev,
-        [profile._id]: getErrorMessage(error, "Cannot delete profile right now."),
+        [profile._id]: getErrorMessage(error, t("profile.errorDelete")),
       }));
     } finally {
       setDeletingProfileId(null);
@@ -214,15 +216,15 @@ export default function ProfilesSelectPage() {
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-600 text-white shadow-lg">
             <UserCircle2 className="h-7 w-7" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Choose your profile</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">{t("profile.chooseTitle")}</h1>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Select the profile you want to use for this session.
+            {t("profile.chooseDescription")}
           </p>
         </div>
 
         <Card className="border-white/60 bg-white/85 shadow-xl backdrop-blur dark:border-gray-800 dark:bg-gray-900/85">
           <CardHeader className="border-b border-gray-100 dark:border-gray-800">
-            <CardTitle className="text-center sm:text-left">Profiles</CardTitle>
+            <CardTitle className="text-center sm:text-left">{t("profile.listTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -267,13 +269,13 @@ export default function ProfilesSelectPage() {
                               <p className="truncate text-base font-semibold text-gray-900 dark:text-white">{profile.name}</p>
                               {profile.isDefault ? (
                                 <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-700 dark:bg-sky-900/40 dark:text-sky-300">
-                                  Default
+                                  {t("profile.default")}
                                 </span>
                               ) : null}
                             </div>
                           )}
                           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                            {isSelectingThisProfile ? "Opening profile..." : "Profile"}
+                            {isSelectingThisProfile ? t("profile.opening") : t("profile.label")}
                           </p>
                         </div>
                       </button>
@@ -314,7 +316,7 @@ export default function ProfilesSelectPage() {
                             onClick={() => handleSaveEdit(profile)}
                             disabled={isUpdatingThisProfile}
                           >
-                            {isUpdatingThisProfile ? "Saving..." : "Save"}
+                            {isUpdatingThisProfile ? t("profile.saving") : t("profile.save")}
                           </Button>
                           <Button
                             type="button"
@@ -327,7 +329,7 @@ export default function ProfilesSelectPage() {
                             }}
                             disabled={isUpdatingThisProfile}
                           >
-                            Cancel
+                            {t("profile.cancel")}
                           </Button>
                         </div>
                       </div>
@@ -352,8 +354,8 @@ export default function ProfilesSelectPage() {
                         <Plus className="h-7 w-7" />
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-900 dark:text-white">Create profile</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Up to {MAX_PROFILES} profiles per account</p>
+                        <p className="font-semibold text-gray-900 dark:text-white">{t("profile.create")}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{t("profile.createHint", { max: MAX_PROFILES })}</p>
                       </div>
                     </button>
                   ) : (
@@ -365,7 +367,7 @@ export default function ProfilesSelectPage() {
                           setNewProfileName(e.target.value);
                           if (createError) setCreateError("");
                         }}
-                        placeholder="Enter profile name"
+                        placeholder={t("profile.enterName")}
                         maxLength={40}
                       />
                       {createError ? (
@@ -378,7 +380,7 @@ export default function ProfilesSelectPage() {
                           onClick={handleCreateProfile}
                           disabled={creatingInProgress}
                         >
-                          {creatingInProgress ? "Creating..." : "Create"}
+                          {creatingInProgress ? t("profile.creating") : t("profile.createAction")}
                         </Button>
                         <Button
                           type="button"
@@ -391,7 +393,7 @@ export default function ProfilesSelectPage() {
                           }}
                           disabled={creatingInProgress}
                         >
-                          Cancel
+                          {t("profile.cancel")}
                         </Button>
                       </div>
                     </div>
