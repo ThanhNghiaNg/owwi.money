@@ -5,13 +5,17 @@ import { query, keys as queryKeys } from "@/api/query";
 import queryClient from "@/api/queryClient";
 import { ProfileResponse } from "@/api/types";
 import { useQuery } from "@tanstack/react-query";
-import React, { createContext, useContext, useMemo } from "react";
+import React, { createContext, useContext, useMemo, useState } from "react";
+
+export type ViewScope = "profile" | "account";
 
 type ProfileContextType = {
   profiles: ProfileResponse[];
   activeProfileId: string | null;
   activeProfile: ProfileResponse | null;
   isLoading: boolean;
+  viewScope: ViewScope;
+  setViewScope: React.Dispatch<React.SetStateAction<ViewScope>>;
   selectProfile: (profileId: string) => Promise<void>;
 }
 
@@ -20,6 +24,7 @@ const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 export function ProfileProvider({ children }: { children: React.ReactNode }) {
   const { data: auth, isFetching } = useQuery(query.user.whoami());
   const { mutateAsync: selectProfileMutation } = mutation.profile.select();
+  const [viewScope, setViewScope] = useState<ViewScope>("profile");
 
   const profiles = auth?.profiles || [];
   const activeProfileId = auth?.activeProfileId || null;
@@ -30,6 +35,8 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
     activeProfileId,
     activeProfile,
     isLoading: isFetching,
+    viewScope,
+    setViewScope,
     selectProfile: async (profileId: string) => {
       await selectProfileMutation(profileId);
       await queryClient.refetchQueries({ queryKey: queryKeys.userWhoami() });
@@ -41,7 +48,7 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
         queryClient.invalidateQueries({ queryKey: [...queryKeys.transactions(), 'statistic'] }),
       ]);
     },
-  }), [profiles, activeProfileId, activeProfile, isFetching, selectProfileMutation]);
+  }), [profiles, activeProfileId, activeProfile, isFetching, viewScope, selectProfileMutation]);
 
   return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>;
 }
