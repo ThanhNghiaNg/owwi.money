@@ -1,8 +1,11 @@
 import { axiosInstance } from "../axios"
 import { TableResponse, TransactionResponse } from "../types";
+import { ViewScope } from "@/contexts/profile-context";
 
-export const getTransactionById = async (id: string) => {
-    return axiosInstance.get(`/transaction/${id}`)
+export const getTransactionById = async (id: string, scope: ViewScope = "profile") => {
+    return axiosInstance.get(`/transaction/${id}`, {
+        params: { scope }
+    })
 }
 
 export interface TableFilter {
@@ -14,6 +17,7 @@ export interface TableFilter {
 export interface GetTransactionParams extends TableFilter {
     page?: number;
     limit?: number;
+    scope?: ViewScope;
     filters? : { [key: string]: string | number | boolean };
 }
 
@@ -28,7 +32,7 @@ export const getTransactions = async (params: GetTransactionParams): Promise<Tab
 }
 
 type BaseTransaction = {
-    _id: string; // Optional for creation
+    _id: string;
     type: string;
     category: string;
     partner: string;
@@ -53,6 +57,7 @@ export const deleteTransaction = async (id: string) => {
 }
 
 type StatisticWeeklyResponse = {
+    scope: ViewScope;
     labels: string[];
     datasets: [
         {
@@ -62,23 +67,37 @@ type StatisticWeeklyResponse = {
         }
     ]
 }
-export const statisticWeekly = async () => {
-    return axiosInstance.get<any, StatisticWeeklyResponse>(`/v2/transactions/statistic/weekly`)
+export const statisticWeekly = async (scope: ViewScope = "profile") => {
+    return axiosInstance.get<any, StatisticWeeklyResponse>(`/v2/transactions/statistic/weekly`, {
+        params: { scope }
+    })
 }
 
-type StatisticMonthlyResponse = Array<{
-    label: string;
-    value: number;
-}>
-export const statisticMonthly = async () => {
-    return axiosInstance.get<any, StatisticMonthlyResponse>(`/v2/transactions/statistic/monthly`)
+type StatisticMonthlyResponse = {
+    scope: ViewScope;
+    labels: string[];
+    datasets: Array<{
+        label: string;
+        data: number[];
+        backgroundColor: string;
+    }>;
+}
+export const statisticMonthly = async (scope: ViewScope = "profile") => {
+    return axiosInstance.get<any, StatisticMonthlyResponse>(`/v2/transactions/statistic/monthly`, {
+        params: { scope }
+    })
 }
 
-type StatisticMonthResponse = Array<{
-    name: string;
-    totalAmount: number;
-    color: string;
-}>
-export const statisticMonth = async (month: number) => {
-    return axiosInstance.get<any, StatisticMonthResponse>(`/v2/transactions/statistic/month?month=${month}`)
+type StatisticMonthResponse = {
+    scope: ViewScope;
+    data: Array<{
+        name: string;
+        totalAmount: number;
+        color?: string;
+    }>;
+}
+export const statisticMonth = async (month: number, scope: ViewScope = "profile") => {
+    return axiosInstance.get<any, StatisticMonthResponse>(`/v2/transactions/statistic/month`, {
+        params: { month, scope }
+    })
 }

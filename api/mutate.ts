@@ -5,6 +5,24 @@ import queryClient from "./queryClient";
 import { keys as queryKeys } from "./query";
 import { createPartner, deletePartner, updatePartner } from "./partners";
 import { createCategory, deleteCategory, updateCategory } from "./category";
+import { createProfile, deleteProfile, selectProfile, updateProfile } from "./profile";
+
+const invalidateTransactionQueries = async (queryKey?: object) => {
+  await Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.transactions(queryKey)
+    }),
+    queryClient.invalidateQueries({
+      queryKey: [...queryKeys.all, "transactions"]
+    }),
+    queryClient.invalidateQueries({
+      queryKey: [...queryKeys.all, "transaction"]
+    }),
+    queryClient.invalidateQueries({
+      queryKey: [...queryKeys.all, "transactions", "statistic"]
+    }),
+  ])
+}
 
 export const MutationKey = {
   user: {
@@ -30,6 +48,13 @@ export const MutationKey = {
     create: () => [...MutationKey.category.mutation, "create"],
     update: () => [...MutationKey.category.mutation, "update"],
     delete: () => [...MutationKey.category.mutation, "delete"],
+  },
+  profile: {
+    mutation: ["profile-mutation"],
+    create: () => [...MutationKey.profile.mutation, "create"],
+    update: () => [...MutationKey.profile.mutation, "update"],
+    delete: () => [...MutationKey.profile.mutation, "delete"],
+    select: () => [...MutationKey.profile.mutation, "select"],
   },
 };
 
@@ -62,28 +87,22 @@ export const mutation = {
     create: (queryKey?: object) => useMutation({
       mutationKey: MutationKey.transaction.create(),
       mutationFn: createTransaction,
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.transactions(queryKey)
-        })
+      onSuccess: async () => {
+        await invalidateTransactionQueries(queryKey)
       }
     }),
     update: (queryKey?: object) => useMutation({
       mutationKey: MutationKey.transaction.update(),
       mutationFn: updateTransaction,
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.transactions(queryKey)
-        })
+      onSuccess: async () => {
+        await invalidateTransactionQueries(queryKey)
       }
     }),
     delete: (queryKey?: object) => useMutation({
       mutationKey: MutationKey.transaction.delete(),
       mutationFn: deleteTransaction,
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.transactions(queryKey)
-        })
+      onSuccess: async () => {
+        await invalidateTransactionQueries(queryKey)
       }
     })
   },
@@ -144,5 +163,42 @@ export const mutation = {
         })
       }
     })
+  },
+  profile: {
+    create: () => useMutation({
+      mutationKey: MutationKey.profile.create(),
+      mutationFn: createProfile,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.profiles() })
+        queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() })
+      }
+    }),
+    update: () => useMutation({
+      mutationKey: MutationKey.profile.update(),
+      mutationFn: updateProfile,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.profiles() })
+        queryClient.invalidateQueries({ queryKey: queryKeys.activeProfile() })
+        queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() })
+      }
+    }),
+    delete: () => useMutation({
+      mutationKey: MutationKey.profile.delete(),
+      mutationFn: deleteProfile,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.profiles() })
+        queryClient.invalidateQueries({ queryKey: queryKeys.activeProfile() })
+        queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() })
+      }
+    }),
+    select: () => useMutation({
+      mutationKey: MutationKey.profile.select(),
+      mutationFn: selectProfile,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: queryKeys.activeProfile() })
+        queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() })
+        queryClient.invalidateQueries({ queryKey: queryKeys.transactions() })
+      }
+    }),
   },
 };

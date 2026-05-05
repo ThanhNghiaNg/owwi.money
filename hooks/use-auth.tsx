@@ -2,7 +2,7 @@
 import { query } from '@/api/query'
 import { SESSION_ID } from '@/utils/constants/keys'
 import { useQuery } from '@tanstack/react-query'
-import { usePathname,  } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 export const useAuth = () => {
@@ -15,5 +15,9 @@ export const useAuth = () => {
     setIsAuth(res?.isLoggedIn ?? !!sessionToken)
   }, [res, pathname])
 
-  return { isAuth }
+  return {
+    isAuth,
+    needsProfileSelection: !!res?.isLoggedIn && !!res?.needsProfileSelection,
+    activeProfileId: res?.activeProfileId || null,
+  }
 }
