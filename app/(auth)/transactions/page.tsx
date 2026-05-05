@@ -23,7 +23,7 @@ import toast from "react-hot-toast"
 
 function TransactionsPage() {
   const [filters, setFilters] = useState<{ [key: string]: string | number | boolean }>({})
-  const { viewScope, activeProfileId } = useProfile()
+  const { viewScope, activeProfileId, activeProfile } = useProfile()
 
   const pagination = usePagination()
   const { limit, setLimit } = pagination
@@ -139,7 +139,8 @@ function TransactionsPage() {
                 <CardTitle>Recent Transactions</CardTitle>
                 {viewScope === "account" && (
                   <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                    Viewing all profiles. You can only edit or delete transactions from the active profile.
+                    Viewing all profiles. New transactions will still be created under the active profile,
+                    and you can only edit or delete transactions from that profile.
                   </p>
                 )}
               </div>
@@ -150,7 +151,10 @@ function TransactionsPage() {
                 <Button onClick={() => setShowSupportLine(prev => !prev)} title="Show support line">
                   <span>{showSupportLine ? <Captions size={18} /> : <CaptionsOff size={18} />}</span>
                 </Button>
-                <Button onClick={() => setIsAddModalOpen(true)}>
+                <Button
+                  onClick={() => setIsAddModalOpen(true)}
+                  title={viewScope === "account" ? `Create under ${activeProfile?.name || "active profile"}` : "Add transaction"}
+                >
                   <span><PlusIcon size={18} /></span>
                 </Button>
               </div>
@@ -235,6 +239,8 @@ function TransactionsPage() {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         queryKey={queryParams}
+        viewScope={viewScope}
+        activeProfileName={activeProfile?.name}
       />
       {
         editTransaction &&
