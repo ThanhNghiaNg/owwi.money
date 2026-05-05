@@ -11,6 +11,7 @@ import { TODAY } from "@/utils/constants/variables"
 import { formatDate } from "@/utils/formats/date"
 import { AxiosError } from "axios"
 import { TransactionResponse } from "@/api/types"
+import { useLanguage } from "@/contexts/language-context"
 
 interface EditTransactionModalProps {
   isOpen: boolean,
@@ -21,13 +22,15 @@ interface EditTransactionModalProps {
 
 export function EditTransactionModal({ isOpen, transaction, onClose, queryKey }: EditTransactionModalProps) {
   const { mutateAsync: updateTransactions, isPending } = mutation.transaction.update(queryKey)
+  const { t } = useLanguage()
+
   const handleSubmit = async (formData: TransactionFormData, reset: () => void) => {
     await updateTransactions({
       _id: transaction._id,
       ...formData
     }, {
-      onSuccess: (data) => {
-        toast.success(MEMO_MESSAGE.UPDATED_SUCCESS("Transaction"))
+      onSuccess: () => {
+        toast.success(t(MEMO_MESSAGE.UPDATED_SUCCESS, { entity: t("entity.transaction") }))
         onClose()
         reset()
       },
@@ -37,10 +40,9 @@ export function EditTransactionModal({ isOpen, transaction, onClose, queryKey }:
           return
         }
         console.error("Error adding transaction:", error)
-        toast.error(MEMO_MESSAGE.UPDATED_FAILED("Transaction"))
+        toast.error(t(MEMO_MESSAGE.UPDATED_FAILED, { entity: t("entity.transaction") }))
       }
     })
-
   }
 
   const initFormData: TransactionFormData = {
@@ -50,16 +52,16 @@ export function EditTransactionModal({ isOpen, transaction, onClose, queryKey }:
     amount: transaction.amount.toString(),
     description: transaction.description || "",
     isDone: transaction.isDone,
-    date: transaction.date ? formatDate(transaction.date, "yyyy/MM/dd", '-') : TODAY // Default to today if no date
+    date: transaction.date ? formatDate(transaction.date, "yyyy/MM/dd", '-') : TODAY
   }
 
   return (
     <TransactionModal
-      title="Edit transaction"
+      title={t("modal.editTransactionTitle")}
       isOpen={isOpen}
       onClose={onClose}
       onSubmit={handleSubmit}
-      enterLabel="Update Transaction"
+      enterLabel={t("modal.updateTransactionAction")}
       initFormData={initFormData}
       isLoading={isPending}
     />

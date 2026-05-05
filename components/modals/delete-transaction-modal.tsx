@@ -7,6 +7,7 @@ import toast from "react-hot-toast"
 import { MEMO_MESSAGE } from "@/utils/constants/memo-messsage"
 import { DeleteModal } from "./delete-modal"
 import { AxiosError } from "axios"
+import { useLanguage } from "@/contexts/language-context"
 
 interface DeleteTransactionModalProps {
   isOpen: boolean,
@@ -17,10 +18,12 @@ interface DeleteTransactionModalProps {
 
 export function DeleteTransactionModal({ isOpen, id, onClose, queryKey }: DeleteTransactionModalProps) {
   const { mutateAsync: deleteTransactions, isPending } = mutation.transaction.delete(queryKey)
+  const { t } = useLanguage()
+
   const handleSubmit = async () => {
     await deleteTransactions(id, {
-      onSuccess: (data) => {
-        toast.success(MEMO_MESSAGE.DELETED_SUCCESS("Transaction"))
+      onSuccess: () => {
+        toast.success(t(MEMO_MESSAGE.DELETED_SUCCESS, { entity: t("entity.transaction") }))
         onClose()
       },
       onError: (error) => {
@@ -29,21 +32,20 @@ export function DeleteTransactionModal({ isOpen, id, onClose, queryKey }: Delete
           return
         }
         console.error("Error adding transaction:", error)
-        toast.error(MEMO_MESSAGE.DELETED_FAILED("Transaction"))
+        toast.error(t(MEMO_MESSAGE.DELETED_FAILED, { entity: t("entity.transaction") }))
       }
     })
-
   }
 
   return (
     <DeleteModal
-      title="Delete transaction"
+      title={t("modal.deleteTransactionTitle")}
       isOpen={isOpen}
       onClose={onClose}
       onSubmit={handleSubmit}
-      enterLabel="Delete Transaction"
+      enterLabel={t("modal.deleteTransactionAction")}
       isLoading={isPending}
-      content={<div className="text-center">Are you sure you want to delete this transaction?<br /> This action cannot be undone.</div>}
+      content={<div className="text-center">{t("modal.deleteTransactionContent")}</div>}
     />
   )
 }

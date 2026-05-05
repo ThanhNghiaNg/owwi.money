@@ -4,6 +4,7 @@ import { Button } from '../ui/button';
 import { Combobox } from '../ui/combobox';
 import { Input } from '../ui/input';
 import { Filter, FilterX } from 'lucide-react';
+import { useLanguage } from '@/contexts/language-context';
 
 interface BaseFilter {
     label: string;
@@ -36,21 +37,22 @@ interface Props {
 
 export type FilterOption = FilterText | FilterCheckbox | FilterCombobox | FilterNumber;
 
-const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel = "Apply", disableEnter, resetLabel = "Reset" }: Props) => {
+const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel, disableEnter, resetLabel }: Props) => {
     const [expand, setExpand] = React.useState<boolean>(false);
+    const { t } = useLanguage();
     const onSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget as HTMLFormElement);
         const filters = Object.fromEntries(formData.entries()) as unknown as Record<string, string | number | boolean>;
         setFilters(filters);
     }
-    const resetFilters = (e: React.FormEvent<HTMLFormElement>) => {
+    const resetFilters = () => {
         setFilters({});
     }
     return (
         <div className={cn('p-4 border border-gray-200 rounded-md', expand ? 'h-full' : 'h-14 overflow-hidden',)}>
             <h4 className='text-md font-semibold text-gray-900 dark:text-white mb-4 flex justify-between items-center cursor-pointer' onClick={() => setExpand(!expand)}>
-                <span>Filters</span>
+                <span>{t("transactions.search")}</span>
                 <span>{expand ? <FilterX size={18} /> : <Filter size={18} />}</span>
             </h4>
             <form className={cn('space-y-2', className, disableEnter && "pointer-events-none opacity-50")} onSubmit={onSubmit} onReset={resetFilters}>
@@ -63,7 +65,7 @@ const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel
                                     type="text"
                                     name={option.name || option.label}
                                     className='border border-gray-300 rounded-md px-2 py-1 truncate'
-                                    placeholder={option.placeholder || `Enter ${option.label}`}
+                                    placeholder={option.placeholder || option.label}
                                 />
                             )}
                             {option.type === "number" && (
@@ -85,15 +87,15 @@ const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel
                                 <Combobox
                                     options={option.options}
                                     name={option.name || option.label}
-                                    placeholder={option.placeholder || `Select ${option.label}`}
+                                    placeholder={option.placeholder || option.label}
                                 />
                             )}
                         </div>
                     ))}
                 </div>
                 <div className='flex space-x-2'>
-                    <Button type="submit" className='h-fit' disabled={disableEnter}>{enterLabel}</Button>
-                    <Button type="reset" className='h-fit' disabled={disableEnter}>{resetLabel}</Button>
+                    <Button type="submit" className='h-fit' disabled={disableEnter}>{enterLabel || t("transactions.search")}</Button>
+                    <Button type="reset" className='h-fit' disabled={disableEnter}>{resetLabel || t("modal.cancel")}</Button>
                 </div>
             </form>
         </div>

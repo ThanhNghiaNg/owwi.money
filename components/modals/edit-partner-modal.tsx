@@ -4,13 +4,11 @@ import type React from "react"
 
 import { mutation } from "@/api/mutate"
 import toast from "react-hot-toast"
-import { MEMO_MESSAGE } from "@/utils/constants/memo-messsage"
 import { PartnerModal } from "./partner-modal"
 import { PartnerFormData } from "./types"
-import { TODAY } from "@/utils/constants/variables"
-import { formatDate } from "@/utils/formats/date"
 import { PartnerResponse } from "@/api/types"
 import { AxiosError } from "axios"
+import { useLanguage } from "@/contexts/language-context"
 
 interface EditPartnerModalProps {
   isOpen: boolean,
@@ -20,13 +18,12 @@ interface EditPartnerModalProps {
 
 export function EditPartnerModal({ isOpen, partner, onClose }: EditPartnerModalProps) {
   const { mutateAsync: updatePartners, isPending } = mutation.partner.update()
+  const { t } = useLanguage()
+
   const handleSubmit = async (formData: PartnerFormData, reset: () => void) => {
-    await updatePartners({
-      id: partner._id,
-      ...formData
-    }, {
-      onSuccess: (data) => {
-        toast.success(MEMO_MESSAGE.UPDATED_SUCCESS("Partner"))
+    await updatePartners({ id: partner._id, ...formData }, {
+      onSuccess: () => {
+        toast.success(t("message.updatedSuccess", { entity: t("entity.partner") }))
         onClose()
         reset()
       },
@@ -36,10 +33,9 @@ export function EditPartnerModal({ isOpen, partner, onClose }: EditPartnerModalP
           return
         }
         console.error("Error adding partner:", error)
-        toast.error(MEMO_MESSAGE.UPDATED_FAILED("Partner"))
+        toast.error(t("message.updatedFailed", { entity: t("entity.partner") }))
       }
     })
-
   }
 
   const initFormData: PartnerFormData = {
@@ -50,11 +46,11 @@ export function EditPartnerModal({ isOpen, partner, onClose }: EditPartnerModalP
 
   return (
     <PartnerModal
-      title="Edit partner"
+      title={t("modal.editPartnerTitle")}
       isOpen={isOpen}
       onClose={onClose}
       onSubmit={handleSubmit}
-      enterLabel="Update Partner"
+      enterLabel={t("modal.updatePartnerAction")}
       initFormData={initFormData}
       isLoading={isPending}
     />

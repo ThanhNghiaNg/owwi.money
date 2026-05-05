@@ -4,9 +4,9 @@ import type React from "react"
 
 import { mutation } from "@/api/mutate"
 import toast from "react-hot-toast"
-import { MEMO_MESSAGE } from "@/utils/constants/memo-messsage"
 import { DeleteModal } from "./delete-modal"
 import { AxiosError } from "axios"
+import { useLanguage } from "@/contexts/language-context"
 
 interface DeleteCategoryModalProps {
   isOpen: boolean,
@@ -16,10 +16,12 @@ interface DeleteCategoryModalProps {
 
 export function DeleteCategoryModal({ isOpen, id, onClose }: DeleteCategoryModalProps) {
   const { mutateAsync: deleteCategories, isPending } = mutation.category.delete()
+  const { t } = useLanguage()
+
   const handleSubmit = async () => {
     await deleteCategories(id, {
-      onSuccess: (data) => {
-        toast.success(MEMO_MESSAGE.DELETED_SUCCESS("Category"))
+      onSuccess: () => {
+        toast.success(t("message.deletedSuccess", { entity: t("entity.category") }))
         onClose()
       },
       onError: (error) => {
@@ -28,21 +30,20 @@ export function DeleteCategoryModal({ isOpen, id, onClose }: DeleteCategoryModal
           return
         }
         console.error("Error deleting category:", error)
-        toast.error(MEMO_MESSAGE.DELETED_FAILED("Category"))
+        toast.error(t("message.deletedFailed", { entity: t("entity.category") }))
       }
     })
-
   }
 
   return (
     <DeleteModal
-      title="Delete category"
+      title={t("modal.deleteCategoryTitle")}
       isOpen={isOpen}
       onClose={onClose}
       onSubmit={handleSubmit}
-      enterLabel="Delete Category"
+      enterLabel={t("modal.deleteCategoryAction")}
       isLoading={isPending}
-      content={<div className="text-center">Are you sure you want to delete this category?<br /> This action cannot be undone.</div>}
+      content={<div className="text-center">{t("modal.deleteCategoryContent")}</div>}
     />
   )
 }

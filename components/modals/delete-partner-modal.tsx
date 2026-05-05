@@ -4,9 +4,9 @@ import type React from "react"
 
 import { mutation } from "@/api/mutate"
 import toast from "react-hot-toast"
-import { MEMO_MESSAGE } from "@/utils/constants/memo-messsage"
 import { DeleteModal } from "./delete-modal"
 import { AxiosError } from "axios"
+import { useLanguage } from "@/contexts/language-context"
 
 interface DeletePartnerModalProps {
   isOpen: boolean,
@@ -16,10 +16,12 @@ interface DeletePartnerModalProps {
 
 export function DeletePartnerModal({ isOpen, id, onClose }: DeletePartnerModalProps) {
   const { mutateAsync: deletePartners, isPending } = mutation.partner.delete()
+  const { t } = useLanguage()
+
   const handleSubmit = async () => {
     await deletePartners(id, {
-      onSuccess: (data) => {
-        toast.success(MEMO_MESSAGE.DELETED_SUCCESS("Partner"))
+      onSuccess: () => {
+        toast.success(t("message.deletedSuccess", { entity: t("entity.partner") }))
         onClose()
       },
       onError: (error) => {
@@ -28,21 +30,20 @@ export function DeletePartnerModal({ isOpen, id, onClose }: DeletePartnerModalPr
           return
         }
         console.error("Error deleting partner:", error)
-        toast.error(MEMO_MESSAGE.DELETED_FAILED("Partner"))
+        toast.error(t("message.deletedFailed", { entity: t("entity.partner") }))
       }
     })
-
   }
 
   return (
     <DeleteModal
-      title="Delete partner"
+      title={t("modal.deletePartnerTitle")}
       isOpen={isOpen}
       onClose={onClose}
       onSubmit={handleSubmit}
-      enterLabel="Delete Partner"
+      enterLabel={t("modal.deletePartnerAction")}
       isLoading={isPending}
-      content={<div className="text-center">Are you sure you want to delete this partner?<br /> This action cannot be undone.</div>}
+      content={<div className="text-center">{t("modal.deletePartnerContent")}</div>}
     />
   )
 }

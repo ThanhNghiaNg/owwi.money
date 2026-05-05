@@ -9,6 +9,7 @@ import { TransactionModal } from "./transaction-modal"
 import { TransactionFormData } from "./types"
 import { AxiosError } from "axios"
 import { ViewScope } from "@/contexts/profile-context"
+import { useLanguage } from "@/contexts/language-context"
 
 interface AddTransactionModalProps {
   isOpen: boolean
@@ -26,11 +27,12 @@ export function AddTransactionModal({
   activeProfileName,
 }: AddTransactionModalProps) {
   const { mutateAsync: createTransaction } = mutation.transaction.create(queryKey)
+  const { t } = useLanguage()
 
   const handleSubmit = async (formData: TransactionFormData, reset: () => void) => {
     await createTransaction(formData, {
       onSuccess: () => {
-        toast.success(MEMO_MESSAGE.CREATED_SUCCESS("Transaction"))
+        toast.success(t(MEMO_MESSAGE.CREATED_SUCCESS, { entity: t("entity.transaction") }))
         onClose()
         reset()
       },
@@ -40,7 +42,7 @@ export function AddTransactionModal({
           return
         }
         console.error("Error adding transaction:", error)
-        toast.error(MEMO_MESSAGE.CREATED_FAILED("Transaction"))
+        toast.error(t(MEMO_MESSAGE.CREATED_FAILED, { entity: t("entity.transaction") }))
       }
     })
   }
@@ -49,16 +51,16 @@ export function AddTransactionModal({
     <div>
       {isOpen && viewScope === "account" && (
         <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300">
-          New transactions are still created under the active profile:
-          <span className="ml-1 font-semibold">{activeProfileName || "Current profile"}</span>
+          {t("modal.activeProfileCreateHint")}
+          <span className="ml-1 font-semibold">{activeProfileName || t("header.currentProfile")}</span>
         </div>
       )}
       <TransactionModal
-        title="Add new transaction"
+        title={t("modal.addTransactionTitle")}
         isOpen={isOpen}
         onClose={onClose}
         onSubmit={handleSubmit}
-        enterLabel="Add Transaction"
+        enterLabel={t("modal.addTransactionAction")}
       />
     </div>
   )

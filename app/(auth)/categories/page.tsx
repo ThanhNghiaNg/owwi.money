@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,13 +15,25 @@ import { CategoryResponse } from "@/api/types"
 import { EditCategoryModal } from "@/components/modals/edit-category-modal"
 import { DeleteCategoryModal } from "@/components/modals/delete-category-modal"
 import { Building, Pencil, PlusIcon, Search, Trash2, User } from "lucide-react"
+import { useLanguage } from "@/contexts/language-context"
 
 export default function CategoriesPage() {
   const { data: categories = [], isRefetching } = useQuery(query.category.getAll())
+  const { t } = useLanguage()
   const [searchTerm, setSearchTerm] = useState("")
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [editCategory, setEditCategory] = useState<CategoryResponse | null>(null)
   const [deleteCategoryId, setDeleteCategoryId] = useState("")
+
+  const filteredCategories = useMemo(() => {
+    const keyword = searchTerm.trim().toLowerCase()
+    if (!keyword) return categories
+    return categories.filter((category) =>
+      [category.name, category.description, category.type?.name]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(keyword))
+    )
+  }, [categories, searchTerm])
 
   const onDeleteCategory = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     const categoryId = e.currentTarget.dataset.id
@@ -42,45 +54,43 @@ export default function CategoriesPage() {
   return (
     <div className="flex-1 bg-gray-50 dark:bg-gray-900">
       {isRefetching && <DotLoader />}
-      <Header title="Categories" breadcrumbs={[{ name: "Categories" }]} />
+      <Header title={t("categories.title")} breadcrumbs={[{ name: t("categories.title") }]} />
       <div className="p-6">
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Categories</CardTitle>
+              <CardTitle>{t("categories.title")}</CardTitle>
               <Button onClick={() => setIsAddModalOpen(true)}>
                 <span className="mr-2"><PlusIcon size={18} /></span>
-                Add new Category
+                {t("categories.add")}
               </Button>
             </div>
           </CardHeader>
 
           <CardContent>
-            {/* Search */}
             <div className="relative mb-6">
               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"><Search size={18} /></span>
               <Input
-                placeholder="Search categories..."
+                placeholder={t("categories.search")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
               />
             </div>
 
-            {/* Table */}
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200 dark:border-gray-700">
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">No</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Name</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Type</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Description</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Actions</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("table.no")}</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("table.name")}</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("table.type")}</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("table.description")}</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("table.actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {categories.map((category, index) => (
+                  {filteredCategories.map((category, index) => (
                     <tr key={category._id} className="border-b border-gray-100 dark:border-gray-800">
                       <td className="py-3 px-4 text-gray-900 dark:text-white">{index + 1}</td>
                       <td className="py-3 px-4">
@@ -99,10 +109,10 @@ export default function CategoriesPage() {
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex space-x-2">
-                          <Button variant="ghost" size="sm" data-id={category._id} onClick={onEditCategory}>
+                          <Button variant="ghost" size="sm" data-id={category._id} onClick={onEditCategory} title={t("transactions.edit")}>
                             <span className="text-blue-600"><Pencil size={18} /></span>
                           </Button>
-                          <Button variant="ghost" size="sm" data-id={category._id} onClick={onDeleteCategory}>
+                          <Button variant="ghost" size="sm" data-id={category._id} onClick={onDeleteCategory} title={t("transactions.delete")}>
                             <span className="text-red-600"><Trash2 size={18} /></span>
                           </Button>
                         </div>

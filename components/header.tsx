@@ -1,6 +1,7 @@
 "use client"
 
 import { mutation } from "@/api/mutate";
+import { useLanguage } from "@/contexts/language-context";
 import { useProfile } from "@/contexts/profile-context";
 import { SESSION_ID } from "@/utils/constants/keys";
 import { Building2, CircleUser, House, Layers3 } from "lucide-react";
@@ -14,6 +15,7 @@ interface HeaderProps {
 export function Header({ title, breadcrumbs = [] }: HeaderProps) {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const { activeProfile, viewScope, setViewScope } = useProfile()
+  const { t } = useLanguage()
   const { mutateAsync: logout } = mutation.user.logout(
     () => {
       setIsUserMenuOpen(false)
@@ -31,7 +33,7 @@ export function Header({ title, breadcrumbs = [] }: HeaderProps) {
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400 min-w-0">
           <span className="text-lg"><House /></span>
-          <span className="hidden sm:inline">Home</span>
+          <span className="hidden sm:inline">{t("header.home")}</span>
           {breadcrumbs.map((crumb, index) => (
             <div key={index} className="flex items-center gap-2 min-w-0">
               <span className="hidden sm:inline">{">"}</span>
@@ -51,7 +53,7 @@ export function Header({ title, breadcrumbs = [] }: HeaderProps) {
           <div className="mt-1 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
             <Layers3 className="h-3.5 w-3.5" />
             <span>
-              Current profile: <span className="font-medium text-gray-700 dark:text-gray-200">{activeProfile?.name || "Not selected"}</span>
+              {t("header.currentProfile")}: <span className="font-medium text-gray-700 dark:text-gray-200">{activeProfile?.name || t("header.notSelected")}</span>
             </span>
           </div>
         </div>
@@ -66,7 +68,7 @@ export function Header({ title, breadcrumbs = [] }: HeaderProps) {
               }`}
           >
             <CircleUser className="h-4 w-4" />
-            <span>This profile</span>
+            <span>{t("header.thisProfile")}</span>
           </button>
           <button
             type="button"
@@ -77,7 +79,7 @@ export function Header({ title, breadcrumbs = [] }: HeaderProps) {
               }`}
           >
             <Building2 className="h-4 w-4" />
-            <span>All profiles</span>
+            <span>{t("header.allProfiles")}</span>
           </button>
         </div>
       </div>
