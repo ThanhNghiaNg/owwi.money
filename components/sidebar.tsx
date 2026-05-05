@@ -5,28 +5,15 @@ import { usePathname } from "next/navigation"
 import { useMemo, useState } from "react"
 import { useTheme } from "@/contexts/theme-context"
 import { useProfile } from "@/contexts/profile-context"
+import { useLanguage } from "@/contexts/language-context"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { BookUser, ChartNoAxesCombined, LogOut, Menu, Moon, NotebookPen, Scale, Sun, Tag, UserCircle2 } from "lucide-react"
+import { BookUser, ChartNoAxesCombined, Languages, LogOut, Menu, Moon, NotebookPen, Scale, Sun, Tag, UserCircle2 } from "lucide-react"
 import { mutation } from "@/api/mutate"
 import { SESSION_ID } from "@/utils/constants/keys"
 import { useQuery } from "@tanstack/react-query"
 import { query } from "@/api/query"
 import { ROUTES } from "@/utils/constants/routes"
 import InstallPWAButton from "./ui/install-pwa-button"
-
-const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: <ChartNoAxesCombined /> },
-  { name: "Transactions", href: "/transactions", icon: <NotebookPen /> },
-  { name: "Partners", href: "/partners", icon: <BookUser /> },
-  { name: "Category", href: "/categories", icon: <Tag /> },
-  { name: "Six Jars", href: "/six-jars", icon: <Scale /> },
-]
-
-const mobileNavigation = [
-  { name: "Dashboard", href: "/dashboard", icon: <ChartNoAxesCombined /> },
-  { name: "Transactions", href: "/transactions", icon: <NotebookPen /> },
-  { name: "More", href: "#", icon: <Menu /> },
-]
 
 const PROFILE_COLORS = [
   "#0EA5E9",
@@ -58,6 +45,7 @@ export function Sidebar() {
   const pathname = usePathname()
   const { theme, toggleTheme } = useTheme()
   const { activeProfile } = useProfile()
+  const { t, language, setLanguage, languages } = useLanguage()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { data: res } = useQuery(query.user.whoami())
   const isAuth = res?.isLoggedIn
@@ -70,6 +58,20 @@ export function Sidebar() {
       window.location.href = '/login'
       console.error("Logout failed")
     })
+
+  const navigation = [
+    { name: t("nav.dashboard"), href: "/dashboard", icon: <ChartNoAxesCombined /> },
+    { name: t("nav.transactions"), href: "/transactions", icon: <NotebookPen /> },
+    { name: t("nav.partners"), href: "/partners", icon: <BookUser /> },
+    { name: t("nav.categories"), href: "/categories", icon: <Tag /> },
+    { name: t("nav.sixJars"), href: "/six-jars", icon: <Scale /> },
+  ]
+
+  const mobileNavigation = [
+    { name: t("nav.dashboard"), href: "/dashboard", icon: <ChartNoAxesCombined /> },
+    { name: t("nav.transactions"), href: "/transactions", icon: <NotebookPen /> },
+    { name: t("nav.more"), href: "#", icon: <Menu /> },
+  ]
 
   const profileFallbackColor = useMemo(() => {
     if (!activeProfile?.name) return PROFILE_COLORS[0]
@@ -87,7 +89,7 @@ export function Sidebar() {
                 <li key={item.name} >
                   <Link
                     href={item.href}
-                    onClick={() => setIsMobileMenuOpen(item.name === "More")}
+                    onClick={() => setIsMobileMenuOpen(item.name === t("nav.more"))}
                     className={`flex flex-col items-center justify-stretch gap-1 rounded-lg w-[100px] p-2 text-sm font-medium transition-colors ${isActive
                       ? "bg-sky-600 text-white shadow-sm"
                       : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
@@ -147,7 +149,7 @@ export function Sidebar() {
           {isAuth && (
             <div className="mt-6 border-t border-gray-200 pt-4 dark:border-gray-700">
               <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                Active Profile
+                {t("nav.activeProfile")}
               </p>
               <Link
                 href={ROUTES.PROFILES_SELECT}
@@ -174,10 +176,10 @@ export function Sidebar() {
                 )}
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-gray-900 dark:text-white">
-                    {activeProfile?.name || "Choose profile"}
+                    {activeProfile?.name || t("nav.chooseProfile")}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Switch profile
+                    {t("nav.switchProfile")}
                   </p>
                 </div>
               </Link>
@@ -185,14 +187,30 @@ export function Sidebar() {
           )}
         </nav>
 
-        <div className="px-3 sm:px-4 py-2">
+        <div className="px-3 sm:px-4 py-2 space-y-2">
+          <div className="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2">
+            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+              <Languages className="h-4 w-4" />
+              <span>{t("common.language")}</span>
+            </div>
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value as typeof language)}
+              className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+            >
+              {languages.map((item) => (
+                <option key={item.code} value={item.code}>{item.label}</option>
+              ))}
+            </select>
+          </div>
+
           <InstallPWAButton />
           <button
             onClick={toggleTheme}
             className="w-full flex items-center justify-start gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
           >
             <span className="text-lg">{theme === "light" ? <Moon /> : <Sun />}</span>
-            <span className="truncate">{theme === "light" ? "Dark Mode" : "Light Mode"}</span>
+            <span className="truncate">{theme === "light" ? t("nav.darkMode") : t("nav.lightMode")}</span>
           </button>
         </div>
 
@@ -202,7 +220,7 @@ export function Sidebar() {
             onClick={() => logout()}
           >
             <span className="text-lg"><LogOut /></span>
-            <span className="truncate">Logout</span>
+            <span className="truncate">{t("nav.logout")}</span>
           </button>
         </div>}
       </div>
