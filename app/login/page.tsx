@@ -54,7 +54,7 @@ function LoginPage() {
             if (error instanceof AxiosError) {
                 setErrorMessage(error.response?.data?.message);
             }
-            toast.error(ERROR_MESSAGE.SYSTEM_ERROR)
+            toast.error(t(ERROR_MESSAGE.SYSTEM_ERROR))
             console.error(error)
         }
     }

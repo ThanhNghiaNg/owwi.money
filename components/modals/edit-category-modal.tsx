@@ -4,13 +4,11 @@ import type React from "react"
 
 import { mutation } from "@/api/mutate"
 import toast from "react-hot-toast"
-import { MEMO_MESSAGE } from "@/utils/constants/memo-messsage"
 import { CategoryModal } from "./category-modal"
 import { CategoryFormData } from "./types"
-import { TODAY } from "@/utils/constants/variables"
-import { formatDate } from "@/utils/formats/date"
 import { CategoryResponse } from "@/api/types"
 import { AxiosError } from "axios"
+import { useLanguage } from "@/contexts/language-context"
 
 interface EditCategoryModalProps {
   isOpen: boolean,
@@ -20,13 +18,12 @@ interface EditCategoryModalProps {
 
 export function EditCategoryModal({ isOpen, category, onClose }: EditCategoryModalProps) {
   const { mutateAsync: updateCategories, isPending } = mutation.category.update()
+  const { t } = useLanguage()
+
   const handleSubmit = async (formData: CategoryFormData, reset: () => void) => {
-    await updateCategories({
-      id: category._id,
-      ...formData
-    }, {
-      onSuccess: (data) => {
-        toast.success(MEMO_MESSAGE.UPDATED_SUCCESS("Category"))
+    await updateCategories({ id: category._id, ...formData }, {
+      onSuccess: () => {
+        toast.success(t("message.updatedSuccess", { entity: t("entity.category") }))
         onClose()
         reset()
       },
@@ -36,10 +33,9 @@ export function EditCategoryModal({ isOpen, category, onClose }: EditCategoryMod
           return
         }
         console.error("Error adding category:", error)
-        toast.error(MEMO_MESSAGE.UPDATED_FAILED("Category"))
+        toast.error(t("message.updatedFailed", { entity: t("entity.category") }))
       }
     })
-
   }
 
   const initFormData: CategoryFormData = {
@@ -50,11 +46,11 @@ export function EditCategoryModal({ isOpen, category, onClose }: EditCategoryMod
 
   return (
     <CategoryModal
-      title="Edit category"
+      title={t("modal.editCategoryTitle")}
       isOpen={isOpen}
       onClose={onClose}
       onSubmit={handleSubmit}
-      enterLabel="Update Category"
+      enterLabel={t("modal.updateCategoryAction")}
       initFormData={initFormData}
       isLoading={isPending}
     />

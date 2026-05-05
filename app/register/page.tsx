@@ -42,7 +42,7 @@ function RegisterPage() {
                 console.error(error)
                 return
             }
-            toast.success(SUCCESS_MESSAGE.REGISTER)
+            toast.success(t(SUCCESS_MESSAGE.REGISTER))
             router.push(ROUTES.LOGIN)
         } catch (error) {
             console.error(error)

@@ -4,10 +4,10 @@ import type React from "react"
 
 import { mutation } from "@/api/mutate"
 import toast from "react-hot-toast"
-import { MEMO_MESSAGE } from "@/utils/constants/memo-messsage"
 import { PartnerFormData } from "./types"
 import { PartnerModal } from "./partner-modal"
 import { AxiosError } from "axios"
+import { useLanguage } from "@/contexts/language-context"
 
 interface AddPartnerModalProps {
   isOpen: boolean
@@ -16,10 +16,12 @@ interface AddPartnerModalProps {
 
 export function AddPartnerModal({ isOpen, onClose }: AddPartnerModalProps) {
   const { mutateAsync: createPartner } = mutation.partner.create()
+  const { t } = useLanguage()
+
   const handleSubmit = async (formData: PartnerFormData, reset: () => void) => {
     await createPartner(formData, {
       onSuccess: () => {
-        toast.success(MEMO_MESSAGE.CREATED_SUCCESS("Partner"))
+        toast.success(t("message.createdSuccess", { entity: t("entity.partner") }))
         onClose()
         reset()
       },
@@ -29,13 +31,10 @@ export function AddPartnerModal({ isOpen, onClose }: AddPartnerModalProps) {
           return
         }
         console.error("Error adding partner:", error)
-        toast.error(MEMO_MESSAGE.CREATED_FAILED("Partner"))
+        toast.error(t("message.createdFailed", { entity: t("entity.partner") }))
       }
     })
-
   }
 
-  return (
-    <PartnerModal title="Add new partner" isOpen={isOpen} onClose={onClose} onSubmit={handleSubmit} enterLabel="Add Partner" />
-  )
+  return <PartnerModal title={t("modal.addPartnerTitle")} isOpen={isOpen} onClose={onClose} onSubmit={handleSubmit} enterLabel={t("modal.addPartnerAction")} />
 }

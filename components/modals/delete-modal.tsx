@@ -5,6 +5,7 @@ import type React from "react"
 import { Modal } from "@/components/ui/modal"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { useLanguage } from "@/contexts/language-context"
 
 interface DeleteModalProps {
   isOpen: boolean
@@ -16,7 +17,9 @@ interface DeleteModalProps {
   content?: React.ReactNode
 }
 
-export function DeleteModal({ isOpen, onClose, onSubmit, content, enterLabel = "Delete", title = "Delete", isLoading }: DeleteModalProps) {
+export function DeleteModal({ isOpen, onClose, onSubmit, content, enterLabel, title = "Delete", isLoading }: DeleteModalProps) {
+  const { t } = useLanguage()
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title}>
       <div>
@@ -26,10 +29,10 @@ export function DeleteModal({ isOpen, onClose, onSubmit, content, enterLabel = "
       </div>
       <div className={cn("flex gap-2 pt-4", isLoading && "pointer-events-none opacity-80")}>
         <Button type="button" variant="outline" onClick={onClose} className="flex-1 bg-transparent">
-          Cancel
+          {t("modal.cancel")}
         </Button>
         <Button type="button" className="flex-1 bg-red-600" onClick={onSubmit}>
-          {enterLabel}
+          {enterLabel || t("modal.delete")}
         </Button>
       </div>
     </Modal>

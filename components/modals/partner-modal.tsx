@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Modal } from "@/components/ui/modal"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,6 +13,7 @@ import { query } from "@/api/query"
 import { PartnerFormData } from "./types"
 import { cn } from "@/lib/utils"
 import toast from "react-hot-toast"
+import { useLanguage } from "@/contexts/language-context"
 
 interface PartnerModalProps {
   isOpen: boolean
@@ -23,23 +24,26 @@ interface PartnerModalProps {
   title?: string
   isLoading?: boolean
 }
-// 2025-07-01
+
 const INIT_FORM_DATA = {
   name: "",
   type: "",
   description: "",
 }
 
-export function PartnerModal({ isOpen, onClose, onSubmit, enterLabel = "Confirm", title = "Modal", initFormData = INIT_FORM_DATA, isLoading }: PartnerModalProps) {
+export function PartnerModal({ isOpen, onClose, onSubmit, enterLabel, title = "Modal", initFormData = INIT_FORM_DATA, isLoading }: PartnerModalProps) {
   const { data: types = [] } = useQuery(query.type.getAll())
   const { data: partners = [] } = useQuery(query.partner.getAll())
+  const { t } = useLanguage()
 
   const [formData, setFormData] = useState(initFormData)
 
-  const typeOptions = types.map(type => ({
-    value: type._id,
-    label: type.name,
-  }))
+  useEffect(() => {
+    if (!isOpen) return
+    setFormData(initFormData)
+  }, [initFormData, isOpen])
+
+  const typeOptions = types.map(type => ({ value: type._id, label: type.name }))
 
   const resetFormData = () => {
     setFormData(INIT_FORM_DATA)
@@ -47,10 +51,9 @@ export function PartnerModal({ isOpen, onClose, onSubmit, enterLabel = "Confirm"
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // check if partner duplicate or not
     const isDuplicate = partners.some(partner => partner.name === formData.name && partner.name === formData.type)
     if (isDuplicate) {
-      toast.error("This partner already exists.")
+      toast.error(t("modal.duplicatePartner"))
       return
     }
     onSubmit(formData, resetFormData)
@@ -61,44 +64,24 @@ export function PartnerModal({ isOpen, onClose, onSubmit, enterLabel = "Confirm"
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Amount <span className="text-red-500">*</span></label>
-            <Input
-              type="text"
-              placeholder="Enter partner name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              required
-            />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("modal.name")} <span className="text-red-500">*</span></label>
+            <Input type="text" placeholder={t("profile.enterName")} value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
           </div>
 
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Type <span className="text-red-500">*</span></label>
-            <Combobox
-              options={typeOptions}
-              value={formData.type}
-              onChange={(value) => setFormData({ ...formData, type: value })}
-              placeholder="Select type"
-            />
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("modal.type")} <span className="text-red-500">*</span></label>
+            <Combobox options={typeOptions} value={formData.type} onChange={(value) => setFormData({ ...formData, type: value })} placeholder={t("modal.selectType")} />
           </div>
         </div>
 
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
-          <Textarea
-            placeholder="Add a note..."
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            rows={3}
-          />
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("modal.description")}</label>
+          <Textarea placeholder={t("modal.addNote")} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} />
         </div>
 
         <div className={cn("flex gap-2 pt-4", isLoading && "pointer-events-none opacity-80")}>
-          <Button type="button" variant="outline" onClick={onClose} className="flex-1 bg-transparent">
-            Cancel
-          </Button>
-          <Button type="submit" className="flex-1">
-            {enterLabel}
-          </Button>
+          <Button type="button" variant="outline" onClick={onClose} className="flex-1 bg-transparent">{t("modal.cancel")}</Button>
+          <Button type="submit" className="flex-1">{enterLabel || t("modal.confirm")}</Button>
         </div>
       </form>
     </Modal>
