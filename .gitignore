@@ -34,5 +34,5 @@ public/workbox-*.js
 /.venv
 
 # rag
-/.rag_store/kv_store_llm_response_cache.json
+/.rag_store
 /dist/rag_query
