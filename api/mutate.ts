@@ -7,6 +7,23 @@ import { createPartner, deletePartner, updatePartner } from "./partners";
 import { createCategory, deleteCategory, updateCategory } from "./category";
 import { createProfile, deleteProfile, selectProfile, updateProfile } from "./profile";
 
+const invalidateTransactionQueries = async (queryKey?: object) => {
+  await Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: queryKeys.transactions(queryKey)
+    }),
+    queryClient.invalidateQueries({
+      queryKey: [...queryKeys.all, "transactions"]
+    }),
+    queryClient.invalidateQueries({
+      queryKey: [...queryKeys.all, "transaction"]
+    }),
+    queryClient.invalidateQueries({
+      queryKey: [...queryKeys.all, "transactions", "statistic"]
+    }),
+  ])
+}
+
 export const MutationKey = {
   user: {
     mutation: ["user-mutation"],
@@ -70,28 +87,22 @@ export const mutation = {
     create: (queryKey?: object) => useMutation({
       mutationKey: MutationKey.transaction.create(),
       mutationFn: createTransaction,
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.transactions(queryKey)
-        })
+      onSuccess: async () => {
+        await invalidateTransactionQueries(queryKey)
       }
     }),
     update: (queryKey?: object) => useMutation({
       mutationKey: MutationKey.transaction.update(),
       mutationFn: updateTransaction,
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.transactions(queryKey)
-        })
+      onSuccess: async () => {
+        await invalidateTransactionQueries(queryKey)
       }
     }),
     delete: (queryKey?: object) => useMutation({
       mutationKey: MutationKey.transaction.delete(),
       mutationFn: deleteTransaction,
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: queryKeys.transactions(queryKey)
-        })
+      onSuccess: async () => {
+        await invalidateTransactionQueries(queryKey)
       }
     })
   },
