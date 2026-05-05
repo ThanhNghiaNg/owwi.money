@@ -7,15 +7,17 @@ import { getAllPartners } from "./partners";
 import { createProfile, deleteProfile, getActiveProfile, getProfiles, selectProfile, updateProfile } from "./profile";
 import { FIVE_MINUTE_MILL, ONE_HOUR_MILL } from "@/utils/constants/variables";
 import { TableResponse } from "./types";
+import { ViewScope } from "@/contexts/profile-context";
+
 export const keys = {
     all: ['all'],
     user: ['user'],
     userWhoami: () => [...keys.all, 'user', 'whoami'],
-    transaction: (id: string) => [...keys.all, 'transaction', id],
+    transaction: (id: string, scope: ViewScope = "profile") => [...keys.all, 'transaction', id, scope],
     transactions: (query?: GetTransactionParams) => [...keys.all, 'transactions', JSON.stringify(query || {})],
-    transactions_statistic_weekly: () => [...keys.transactions(), 'statistic', 'weekly'],
-    transactions_statistic_monthly: () => [...keys.transactions(), 'statistic', 'monthly'],
-    transactions_statistic_month: (month: number) => [...keys.transactions(), 'statistic', 'month', month],
+    transactions_statistic_weekly: (scope: ViewScope = "profile") => [...keys.all, 'transactions', 'statistic', 'weekly', scope],
+    transactions_statistic_monthly: (scope: ViewScope = "profile") => [...keys.all, 'transactions', 'statistic', 'monthly', scope],
+    transactions_statistic_month: (month: number, scope: ViewScope = "profile") => [...keys.all, 'transactions', 'statistic', 'month', month, scope],
     category: (id: string) => [...keys.all, 'category', id],
     partner: (id: string) => [...keys.all, 'partner', id],
     types: () => [...keys.all, 'types'],
@@ -64,14 +66,14 @@ export const query = {
         }),
     },
     transaction: {
-        getById: (id: string) =>
+        getById: (id: string, scope: ViewScope = "profile") =>
             queryOptions({
-                queryKey: keys.transaction(id),
-                queryFn: () => getTransactionById(id),
+                queryKey: keys.transaction(id, scope),
+                queryFn: () => getTransactionById(id, scope),
             }),
-        getAllTransaction: (query: GetTransactionParams) => infiniteQueryOptions({
-            queryKey: keys.transactions(query),
-            queryFn: ({ pageParam }: { pageParam: string | null }) => getTransactions({ cursor: pageParam, ...query }),
+        getAllTransaction: (queryParams: GetTransactionParams) => infiniteQueryOptions({
+            queryKey: keys.transactions(queryParams),
+            queryFn: ({ pageParam }: { pageParam: string | null }) => getTransactions({ cursor: pageParam, ...queryParams }),
             initialPageParam: null,
             staleTime: FIVE_MINUTE_MILL,
             getNextPageParam: (lastPage: TableResponse<Transaction> | any) => {
@@ -79,20 +81,20 @@ export const query = {
             },
         }),
         statistic: {
-            weekly: () =>
+            weekly: (scope: ViewScope = "profile") =>
                 queryOptions({
-                    queryKey: keys.transactions_statistic_weekly(),
-                    queryFn: () => statisticWeekly(),
+                    queryKey: keys.transactions_statistic_weekly(scope),
+                    queryFn: () => statisticWeekly(scope),
                 }),
-            monthly: () =>
+            monthly: (scope: ViewScope = "profile") =>
                 queryOptions({
-                    queryKey: keys.transactions_statistic_monthly(),
-                    queryFn: () => statisticMonthly(),
+                    queryKey: keys.transactions_statistic_monthly(scope),
+                    queryFn: () => statisticMonthly(scope),
                 }),
-            month: (month: number) =>
+            month: (month: number, scope: ViewScope = "profile") =>
                 queryOptions({
-                    queryKey: keys.transactions_statistic_month(month),
-                    queryFn: () => statisticMonth(month),
+                    queryKey: keys.transactions_statistic_month(month, scope),
+                    queryFn: () => statisticMonth(month, scope),
                 }),
         }
     },

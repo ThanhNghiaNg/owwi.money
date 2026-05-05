@@ -44,9 +44,11 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.activeProfile() }),
         queryClient.invalidateQueries({ queryKey: queryKeys.transactions() }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.transactions_statistic_weekly() }),
-        queryClient.invalidateQueries({ queryKey: queryKeys.transactions_statistic_monthly() }),
-        queryClient.invalidateQueries({ queryKey: [...queryKeys.transactions(), 'statistic'] }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.transactions_statistic_weekly("profile") }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.transactions_statistic_weekly("account") }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.transactions_statistic_monthly("profile") }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.transactions_statistic_monthly("account") }),
+        queryClient.invalidateQueries({ queryKey: [...queryKeys.all, 'transactions', 'statistic'] }),
       ]);
     },
   }), [profiles, activeProfileId, activeProfile, isFetching, viewScope, selectProfileMutation]);
