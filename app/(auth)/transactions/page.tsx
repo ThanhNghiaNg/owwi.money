@@ -13,22 +13,22 @@ import TableLoadMore from "@/components/table/pagination"
 import { usePagination } from "@/components/table/usePagination"
 import { EditTransactionModal } from "@/components/modals/edit-transaction-modal"
 import { DeleteTransactionModal } from "@/components/modals/delete-transaction-modal"
-// import { getTypeColor } from "@/utils/constants/styles"
 import { DotLoader } from "@/components/ui/skeleton/dot-loader"
 import { TransactionResponse } from "@/api/types"
 import { Captions, CaptionsOff, EyeIcon, EyeOff, Pencil, PlusIcon, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import TableFilter, { FilterOption } from "@/components/table/filter"
-
-const tabs = ["All", "Revenue", "Expenses", "Loan", "Borrow"]
+import { useProfile } from "@/contexts/profile-context"
+import toast from "react-hot-toast"
 
 function TransactionsPage() {
   const [filters, setFilters] = useState<{ [key: string]: string | number | boolean }>({})
+  const { viewScope, activeProfileId } = useProfile()
 
   const pagination = usePagination()
   const { limit, setLimit } = pagination
 
-  const queryParams = useMemo(() => ({ limit, filters }), [limit, filters])
+  const queryParams = useMemo(() => ({ limit, filters, scope: viewScope }), [limit, filters, viewScope])
 
   const {
     data,
@@ -53,7 +53,6 @@ function TransactionsPage() {
   const tableData = useMemo(() => data?.pages?.flatMap(page => page?.data) || [], [data?.pages])
 
   const filterOptions: FilterOption[] = useMemo(() => [
-
     {
       label: "Category", name: "category", type: "combobox", options: categories.map(c => ({ value: c._id, label: c.name }))
     },
@@ -72,29 +71,44 @@ function TransactionsPage() {
     const transactionId = e.currentTarget.dataset.id
     if (!transactionId) return
 
+    const transaction = tableData.find(t => t._id === transactionId)
+    const canManage = transaction?.createdByProfile?._id === activeProfileId
+    if (!canManage) {
+      toast.error("Switch to that profile to delete this transaction.")
+      return
+    }
+
     setDeleteTransactionId(transactionId)
-  }, [])
+  }, [tableData, activeProfileId])
 
   const onEditTransaction = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     const transactionId = e.currentTarget.dataset.id
     if (!transactionId) return
     const transaction = tableData.find(t => t._id === transactionId)
+    const canManage = transaction?.createdByProfile?._id === activeProfileId
+    if (!canManage) {
+      toast.error("Switch to that profile to edit this transaction.")
+      return
+    }
     if (transaction) {
       setEditTransaction(transaction)
     }
-  }, [tableData])
+  }, [tableData, activeProfileId])
 
   const onDoubleClickRow = useCallback((e: React.MouseEvent<HTMLTableRowElement>) => {
     const transactionId = e.currentTarget.dataset.id
     if (!transactionId) return
     const transaction = tableData.find(t => t._id === transactionId)
+    const canManage = transaction?.createdByProfile?._id === activeProfileId
+    if (!canManage) {
+      return
+    }
     if (transaction) {
       setEditTransaction(transaction)
     }
-  }, [tableData])
+  }, [tableData, activeProfileId])
 
   const getTypeColor = (type: string) => {
-
     switch (type.toLowerCase()) {
       case "income":
         return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
@@ -120,51 +134,38 @@ function TransactionsPage() {
       <div className="p-6">
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between flex-wrap">
-              <CardTitle>Recent Transactions</CardTitle>
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <CardTitle>Recent Transactions</CardTitle>
+                {viewScope === "account" && (
+                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    Viewing all profiles. You can only edit or delete transactions from the active profile.
+                  </p>
+                )}
+              </div>
               <div className="flex md:flex-row items-center space-x-2 w-full md:w-auto md:mt-0 mt-4">
                 <Button onClick={() => setHideSensitive(prev => !prev)} title="Show sensitive information">
                   <span>{hideSensitive ? <EyeIcon size={18} /> : <EyeOff size={18} />}</span>
-                  {/* Sensitive */}
                 </Button>
                 <Button onClick={() => setShowSupportLine(prev => !prev)} title="Show support line">
                   <span>{showSupportLine ? <Captions size={18} /> : <CaptionsOff size={18} />}</span>
-                  {/* Support line */}
                 </Button>
                 <Button onClick={() => setIsAddModalOpen(true)}>
                   <span><PlusIcon size={18} /></span>
-                  {/* Transaction */}
                 </Button>
               </div>
-
             </div>
-
-            {/* Tabs */}
-            {/* <div className="flex space-x-1 bg-gray-100 dark:bg-gray-700 p-1 rounded-lg w-fit">
-              {tabs.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${activeTab === tab
-                    ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
-                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                    }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div> */}
           </CardHeader>
 
           <CardContent>
             <TableFilter disableEnter={isFetchingFilters} className="relative mb-6" enterLabel="Search" filters={filters} setFilters={setFilters} filterOptions={filterOptions} />
 
-            {/* Table */}
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-400 dark:border-gray-700">
                     <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">No</th>
+                    {viewScope === "account" && <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Profile</th>}
                     <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Category</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Partner</th>
                     <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Type</th>
@@ -177,9 +178,19 @@ function TransactionsPage() {
                   {isError || !tableData ? null : tableData?.map((transaction, index) => {
                     border = index !== tableData.length - 1 && transaction.date !== tableData[index + 1].date ? "border-t border-gray-300 dark:border-gray-700" : ""
                     totalOutcome += transaction.type.name.toLowerCase() === "outcome" ? transaction.amount : 0
+                    const canManage = transaction.createdByProfile?._id === activeProfileId
                     return (
                       <tr key={transaction._id} data-id={transaction._id} className={cn("border-b border-gray-100 dark:border-gray-800 text-gray-900 dark:text-white", showSupportLine && border)} onDoubleClick={onDoubleClickRow}>
                         <td className="py-3 px-4">{index}</td>
+                        {viewScope === "account" && (
+                          <td className="py-3 px-4">
+                            {transaction.createdByProfile?.name ? (
+                              <Badge variant="outline">{transaction.createdByProfile.name}</Badge>
+                            ) : (
+                              <Badge variant="outline">Legacy</Badge>
+                            )}
+                          </td>
+                        )}
                         <td className="py-3 px-4">{transaction.category.name}</td>
                         <td className="py-3 px-4">{transaction.partner.name}</td>
                         <td className="py-3 px-4">
@@ -190,12 +201,12 @@ function TransactionsPage() {
                           {transaction.type.name.toLowerCase() === "income" && hideSensitive ? "******" : transaction.amount.toLocaleString()}đ
                         </td>
                         <td className="py-3 px-4">
-                          <div className="flex space-x-2">
-                            <Button variant="ghost" size="sm" data-id={transaction._id} onClick={onEditTransaction}>
-                              <span className="text-blue-600"><Pencil size={18} /></span>
+                          <div className="flex items-center space-x-2">
+                            <Button variant="ghost" size="sm" data-id={transaction._id} onClick={onEditTransaction} disabled={!canManage} title={canManage ? "Edit transaction" : "Switch to that profile to edit"}>
+                              <span className={canManage ? "text-blue-600" : "text-gray-400"}><Pencil size={18} /></span>
                             </Button>
-                            <Button variant="ghost" size="sm" data-id={transaction._id} onClick={onDeleteTransaction}>
-                              <span className="text-red-600"><Trash2 size={18} /></span>
+                            <Button variant="ghost" size="sm" data-id={transaction._id} onClick={onDeleteTransaction} disabled={!canManage} title={canManage ? "Delete transaction" : "Switch to that profile to delete"}>
+                              <span className={canManage ? "text-red-600" : "text-gray-400"}><Trash2 size={18} /></span>
                             </Button>
                           </div>
                         </td>
@@ -204,23 +215,18 @@ function TransactionsPage() {
                   })}
                   <tr className={cn("border-b border-gray-100 dark:border-gray-800 text-gray-900 dark:text-white", showSupportLine && border)}>
                     <td className="py-3 px-4"></td>
+                    {viewScope === "account" && <td className="py-3 px-4"></td>}
                     <td className="py-3 px-4"></td>
                     <td className="py-3 px-4"></td>
-                    <td className="py-3 px-4">
-
-                    </td>
+                    <td className="py-3 px-4"></td>
                     <td className="py-3 px-4">Tổng chi:</td>
-                    <td className="py-3 px-4">
-                      {totalOutcome.toLocaleString()}đ
-                    </td>
-                    <td className="py-3 px-4">
-                    </td>
+                    <td className="py-3 px-4">{totalOutcome.toLocaleString()}đ</td>
+                    <td className="py-3 px-4"></td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            {/* Pagination */}
             {data?.pages[data?.pages?.length - 1].hasNextPage && <TableLoadMore fetchNextPage={fetchNextPage} isLoading={isFetching} setLimit={setLimit} defaultLimit={limit} />}
           </CardContent>
         </Card>
