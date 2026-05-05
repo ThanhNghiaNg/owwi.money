@@ -19,11 +19,13 @@ import { Captions, CaptionsOff, EyeIcon, EyeOff, Pencil, PlusIcon, Trash2 } from
 import { cn } from "@/lib/utils"
 import TableFilter, { FilterOption } from "@/components/table/filter"
 import { useProfile } from "@/contexts/profile-context"
+import { useLanguage } from "@/contexts/language-context"
 import toast from "react-hot-toast"
 
 function TransactionsPage() {
   const [filters, setFilters] = useState<{ [key: string]: string | number | boolean }>({})
   const { viewScope, activeProfileId, activeProfile } = useProfile()
+  const { t } = useLanguage()
 
   const pagination = usePagination()
   const { limit, setLimit } = pagination
@@ -54,18 +56,18 @@ function TransactionsPage() {
 
   const filterOptions: FilterOption[] = useMemo(() => [
     {
-      label: "Category", name: "category", type: "combobox", options: categories.map(c => ({ value: c._id, label: c.name }))
+      label: t("transactions.category"), name: "category", type: "combobox", options: categories.map(c => ({ value: c._id, label: c.name }))
     },
     {
-      label: "Partner", name: "partner", type: "combobox", options: partners.map(p => ({ value: p._id, label: p.name }))
+      label: t("transactions.partner"), name: "partner", type: "combobox", options: partners.map(p => ({ value: p._id, label: p.name }))
     },
     {
-      label: "Type", name: "type", type: "combobox", options: types.map(t => ({ value: t._id, label: t.name }))
+      label: t("transactions.type"), name: "type", type: "combobox", options: types.map(t => ({ value: t._id, label: t.name }))
     },
     {
-      label: "Description", name: "description", type: "text"
+      label: t("transactions.description"), name: "description", type: "text"
     },
-  ], [categories, partners, types])
+  ], [categories, partners, types, t])
 
   const onDeleteTransaction = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     const transactionId = e.currentTarget.dataset.id
@@ -74,12 +76,12 @@ function TransactionsPage() {
     const transaction = tableData.find(t => t._id === transactionId)
     const canManage = transaction?.createdByProfile?._id === activeProfileId
     if (!canManage) {
-      toast.error("Switch to that profile to delete this transaction.")
+      toast.error(t("transactions.switchToDelete"))
       return
     }
 
     setDeleteTransactionId(transactionId)
-  }, [tableData, activeProfileId])
+  }, [tableData, activeProfileId, t])
 
   const onEditTransaction = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     const transactionId = e.currentTarget.dataset.id
@@ -87,13 +89,13 @@ function TransactionsPage() {
     const transaction = tableData.find(t => t._id === transactionId)
     const canManage = transaction?.createdByProfile?._id === activeProfileId
     if (!canManage) {
-      toast.error("Switch to that profile to edit this transaction.")
+      toast.error(t("transactions.switchToEdit"))
       return
     }
     if (transaction) {
       setEditTransaction(transaction)
     }
-  }, [tableData, activeProfileId])
+  }, [tableData, activeProfileId, t])
 
   const onDoubleClickRow = useCallback((e: React.MouseEvent<HTMLTableRowElement>) => {
     const transactionId = e.currentTarget.dataset.id
@@ -129,31 +131,30 @@ function TransactionsPage() {
   return (
     <div className="flex-1 bg-gray-50 dark:bg-gray-900">
       {(isRefetching || isFetching) && <DotLoader />}
-      <Header title="Transactions" breadcrumbs={[{ name: "Transactions" }]} />
+      <Header title={t("transactions.title")} breadcrumbs={[{ name: t("transactions.title") }]} />
 
       <div className="p-6">
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div>
-                <CardTitle>Recent Transactions</CardTitle>
+                <CardTitle>{t("transactions.recent")}</CardTitle>
                 {viewScope === "account" && (
                   <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                    Viewing all profiles. New transactions will still be created under the active profile,
-                    and you can only edit or delete transactions from that profile.
+                    {t("transactions.accountHint")}
                   </p>
                 )}
               </div>
               <div className="flex md:flex-row items-center space-x-2 w-full md:w-auto md:mt-0 mt-4">
-                <Button onClick={() => setHideSensitive(prev => !prev)} title="Show sensitive information">
+                <Button onClick={() => setHideSensitive(prev => !prev)} title={t("transactions.showSensitive")}>
                   <span>{hideSensitive ? <EyeIcon size={18} /> : <EyeOff size={18} />}</span>
                 </Button>
-                <Button onClick={() => setShowSupportLine(prev => !prev)} title="Show support line">
+                <Button onClick={() => setShowSupportLine(prev => !prev)} title={t("transactions.showSupportLine")}>
                   <span>{showSupportLine ? <Captions size={18} /> : <CaptionsOff size={18} />}</span>
                 </Button>
                 <Button
                   onClick={() => setIsAddModalOpen(true)}
-                  title={viewScope === "account" ? `Create under ${activeProfile?.name || "active profile"}` : "Add transaction"}
+                  title={viewScope === "account" ? t("transactions.createUnder", { name: activeProfile?.name || "active profile" }) : t("transactions.add")}
                 >
                   <span><PlusIcon size={18} /></span>
                 </Button>
@@ -162,20 +163,20 @@ function TransactionsPage() {
           </CardHeader>
 
           <CardContent>
-            <TableFilter disableEnter={isFetchingFilters} className="relative mb-6" enterLabel="Search" filters={filters} setFilters={setFilters} filterOptions={filterOptions} />
+            <TableFilter disableEnter={isFetchingFilters} className="relative mb-6" enterLabel={t("transactions.search")} filters={filters} setFilters={setFilters} filterOptions={filterOptions} />
 
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-400 dark:border-gray-700">
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">No</th>
-                    {viewScope === "account" && <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Profile</th>}
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Category</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Partner</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Type</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Date</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Amount</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">Actions</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("transactions.no")}</th>
+                    {viewScope === "account" && <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("transactions.profile")}</th>}
+                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("transactions.category")}</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("transactions.partner")}</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("transactions.type")}</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("transactions.date")}</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("transactions.amount")}</th>
+                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("transactions.actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -191,7 +192,7 @@ function TransactionsPage() {
                             {transaction.createdByProfile?.name ? (
                               <Badge variant="outline">{transaction.createdByProfile.name}</Badge>
                             ) : (
-                              <Badge variant="outline">Legacy</Badge>
+                              <Badge variant="outline">{t("transactions.legacy")}</Badge>
                             )}
                           </td>
                         )}
@@ -206,10 +207,10 @@ function TransactionsPage() {
                         </td>
                         <td className="py-3 px-4">
                           <div className="flex items-center space-x-2">
-                            <Button variant="ghost" size="sm" data-id={transaction._id} onClick={onEditTransaction} disabled={!canManage} title={canManage ? "Edit transaction" : "Switch to that profile to edit"}>
+                            <Button variant="ghost" size="sm" data-id={transaction._id} onClick={onEditTransaction} disabled={!canManage} title={canManage ? t("transactions.edit") : t("transactions.switchToEdit")}>
                               <span className={canManage ? "text-blue-600" : "text-gray-400"}><Pencil size={18} /></span>
                             </Button>
-                            <Button variant="ghost" size="sm" data-id={transaction._id} onClick={onDeleteTransaction} disabled={!canManage} title={canManage ? "Delete transaction" : "Switch to that profile to delete"}>
+                            <Button variant="ghost" size="sm" data-id={transaction._id} onClick={onDeleteTransaction} disabled={!canManage} title={canManage ? t("transactions.delete") : t("transactions.switchToDelete")}>
                               <span className={canManage ? "text-red-600" : "text-gray-400"}><Trash2 size={18} /></span>
                             </Button>
                           </div>
@@ -223,7 +224,7 @@ function TransactionsPage() {
                     <td className="py-3 px-4"></td>
                     <td className="py-3 px-4"></td>
                     <td className="py-3 px-4"></td>
-                    <td className="py-3 px-4">Tổng chi:</td>
+                    <td className="py-3 px-4">{t("transactions.totalOutcome")}</td>
                     <td className="py-3 px-4">{totalOutcome.toLocaleString()}đ</td>
                     <td className="py-3 px-4"></td>
                   </tr>
