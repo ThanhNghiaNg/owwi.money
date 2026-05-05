@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Modal } from "@/components/ui/modal"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,15 +23,15 @@ interface TransactionModalProps {
   title?: string
   isLoading?: boolean
 }
-// 2025-07-01
+
 const INIT_FORM_DATA = {
   amount: "",
   type: "",
   category: "",
   partner: "",
-  date: formatDate(new Date().toISOString(), "yyyy/MM/dd", '-'), // Default to today
+  date: formatDate(new Date().toISOString(), "yyyy/MM/dd", '-'),
   description: "",
-  isDone: true, // Default to true
+  isDone: true,
 }
 
 export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel = "Confirm", title = "Modal", initFormData = INIT_FORM_DATA, isLoading }: TransactionModalProps) {
@@ -40,6 +40,11 @@ export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel = "Conf
   const { data: partners = [] } = useQuery(query.partner.getAll())
 
   const [formData, setFormData] = useState(initFormData)
+
+  useEffect(() => {
+    if (!isOpen) return
+    setFormData(initFormData)
+  }, [initFormData, isOpen])
 
   const categoryOptions = categories.map((cat) => ({
     value: cat._id,
