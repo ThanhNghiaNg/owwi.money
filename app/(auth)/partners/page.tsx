@@ -14,7 +14,7 @@ import { DotLoader } from "@/components/ui/skeleton/dot-loader"
 import { DeletePartnerModal } from "@/components/modals/delete-partner-modal"
 import { EditPartnerModal } from "@/components/modals/edit-partner-modal"
 import { PartnerResponse } from "@/api/types"
-import { Pencil, PlusIcon, Search, Trash2, User } from "lucide-react"
+import { Pencil, PlusIcon, Search, Trash2, User, X } from "lucide-react"
 import { useLanguage } from "@/contexts/language-context"
 
 export default function PartnersPage() {
@@ -74,8 +74,18 @@ export default function PartnersPage() {
                 placeholder={t("partners.search")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 pr-10"
               />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                  aria-label="Clear search"
+                >
+                  <X size={16} />
+                </button>
+              )}
             </div>
 
             <div className="overflow-x-auto">
