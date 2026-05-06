@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState, useRef, useEffect, memo } from "react"
+import { X } from "lucide-react"
 
 interface ComboboxOption {
   value: string
@@ -32,23 +33,26 @@ export const Combobox = memo(({ options, value, onChange, placeholder = "Search.
   useEffect(() => {
     if (selectedOption) {
       setSearchTerm(selectedOption.label)
+      setValueHidden(selectedOption.value)
+      return
     }
-  }, [selectedOption])
+
+    if (!value) {
+      setSearchTerm("")
+      setValueHidden("")
+    }
+  }, [selectedOption, value])
 
   useEffect(() => {
-    // Tìm form cha gần nhất
-
     const form = inputRef.current?.closest("form")
     if (!form) return
 
-    // Khi form reset → clear combobox state
     const handleReset = () => {
       setSearchTerm("")
       setValueHidden("")
       setHighlightedIndex(-1)
       setIsOpen(false)
     }
-
 
     if (name) {
       form.addEventListener("reset", handleReset)
@@ -58,12 +62,27 @@ export const Combobox = memo(({ options, value, onChange, placeholder = "Search.
         form.removeEventListener("reset", handleReset)
       }
     }
-  }, [])
+  }, [name])
+
+  const clearValue = () => {
+    setSearchTerm("")
+    setValueHidden("")
+    setHighlightedIndex(-1)
+    setIsOpen(false)
+    onChange?.("")
+    inputRef.current?.focus()
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value)
+    const nextValue = e.target.value
+    setSearchTerm(nextValue)
     setIsOpen(true)
     setHighlightedIndex(-1)
+
+    if (!nextValue) {
+      setValueHidden("")
+      onChange?.("")
+    }
   }
 
   const handleOptionClick = (option: ComboboxOption) => {
@@ -116,9 +135,20 @@ export const Combobox = memo(({ options, value, onChange, placeholder = "Search.
         onFocus={() => setIsOpen(true)}
         onBlur={() => setTimeout(() => setIsOpen(false), 200)}
         placeholder={placeholder}
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
+        className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
       />
-      {name && <input value={valueHidden} name={name} className="hidden" onReset={(e: any) => { console.log("hehe") }} />}
+      {searchTerm && (
+        <button
+          type="button"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={clearValue}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+          aria-label="Clear input"
+        >
+          <X size={16} />
+        </button>
+      )}
+      {name && <input value={valueHidden} name={name} className="hidden" readOnly />}
 
       {isOpen && filteredOptions.length > 0 && (
         <ul

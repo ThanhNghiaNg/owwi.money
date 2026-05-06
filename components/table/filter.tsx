@@ -3,7 +3,7 @@ import React from 'react'
 import { Button } from '../ui/button';
 import { Combobox } from '../ui/combobox';
 import { Input } from '../ui/input';
-import { Filter, FilterX } from 'lucide-react';
+import { Filter, FilterX, X } from 'lucide-react';
 import { useLanguage } from '@/contexts/language-context';
 
 interface BaseFilter {
@@ -57,41 +57,93 @@ const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel
             </h4>
             <form className={cn('space-y-2', className, disableEnter && "pointer-events-none opacity-50")} onSubmit={onSubmit} onReset={resetFilters}>
                 <div className='flex flex-wrap gap-2 items-end'>
-                    {filterOptions?.map(option => (
-                        <div key={option.label} className='flex flex-col'>
-                            <label className='text-sm font-medium text-gray-700 mb-1'>{option.label}</label>
-                            {option.type === "text" && (
-                                <Input
-                                    type="text"
-                                    name={option.name || option.label}
-                                    className='border border-gray-300 rounded-md px-2 py-1 truncate'
-                                    placeholder={option.placeholder || option.label}
-                                />
-                            )}
-                            {option.type === "number" && (
-                                <Input
-                                    type="number"
-                                    name={option.name || option.label}
-                                    className='border border-gray-300 rounded-md px-2 py-1 truncate'
-                                />
-                            )}
-                            {option.type === "checkbox" && (
-                                <Input
-                                    type="checkbox"
-                                    name={option.name || option.label}
-                                    checked={filters[option.label] as boolean || false}
-                                    className='h-4 w-4 text-blue-600 border-gray-300 rounded truncate'
-                                />
-                            )}
-                            {option.type === "combobox" && (
-                                <Combobox
-                                    options={option.options}
-                                    name={option.name || option.label}
-                                    placeholder={option.placeholder || option.label}
-                                />
-                            )}
-                        </div>
-                    ))}
+                    {filterOptions?.map(option => {
+                        const fieldName = option.name || option.label;
+                        const fieldValue = filters[fieldName];
+                        const hasValue = fieldValue !== undefined && fieldValue !== null && fieldValue !== '' && fieldValue !== false;
+
+                        return (
+                            <div key={option.label} className='flex flex-col'>
+                                <label className='text-sm font-medium text-gray-700 mb-1'>{option.label}</label>
+                                {option.type === "text" && (
+                                    <div className='relative'>
+                                        <Input
+                                            key={`${fieldName}-${String(fieldValue ?? '')}`}
+                                            type="text"
+                                            name={fieldName}
+                                            defaultValue={typeof fieldValue === 'string' ? fieldValue : ''}
+                                            className='border border-gray-300 rounded-md px-2 py-1 pr-8 truncate'
+                                            placeholder={option.placeholder || option.label}
+                                        />
+                                        {hasValue && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setFilters((prev) => {
+                                                    const next = { ...prev };
+                                                    delete next[fieldName];
+                                                    return next;
+                                                })}
+                                                className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600'
+                                                aria-label={`Clear ${option.label}`}
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                                {option.type === "number" && (
+                                    <div className='relative'>
+                                        <Input
+                                            key={`${fieldName}-${String(fieldValue ?? '')}`}
+                                            type="number"
+                                            name={fieldName}
+                                            defaultValue={typeof fieldValue === 'number' ? fieldValue : typeof fieldValue === 'string' ? fieldValue : ''}
+                                            className='border border-gray-300 rounded-md px-2 py-1 pr-8 truncate'
+                                        />
+                                        {hasValue && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setFilters((prev) => {
+                                                    const next = { ...prev };
+                                                    delete next[fieldName];
+                                                    return next;
+                                                })}
+                                                className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600'
+                                                aria-label={`Clear ${option.label}`}
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                                {option.type === "checkbox" && (
+                                    <Input
+                                        type="checkbox"
+                                        name={fieldName}
+                                        checked={Boolean(filters[fieldName])}
+                                        className='h-4 w-4 text-blue-600 border-gray-300 rounded truncate'
+                                    />
+                                )}
+                                {option.type === "combobox" && (
+                                    <Combobox
+                                        options={option.options}
+                                        name={fieldName}
+                                        value={typeof fieldValue === 'string' ? fieldValue : ''}
+                                        onChange={(value) => setFilters((prev) => {
+                                            const next = { ...prev };
+                                            if (!value) {
+                                                delete next[fieldName];
+                                                return next;
+                                            }
+                                            next[fieldName] = value;
+                                            return next;
+                                        })}
+                                        placeholder={option.placeholder || option.label}
+                                    />
+                                )}
+                            </div>
+                        )
+                    })}
                 </div>
                 <div className='flex space-x-2'>
                     <Button type="submit" className='h-fit' disabled={disableEnter}>{enterLabel || t("transactions.search")}</Button>
