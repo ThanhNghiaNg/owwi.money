@@ -14,7 +14,7 @@ import { DotLoader } from "@/components/ui/skeleton/dot-loader"
 import { CategoryResponse } from "@/api/types"
 import { EditCategoryModal } from "@/components/modals/edit-category-modal"
 import { DeleteCategoryModal } from "@/components/modals/delete-category-modal"
-import { Building, Pencil, PlusIcon, Search, Trash2, User } from "lucide-react"
+import { Building, Pencil, PlusIcon, Search, Trash2, User, X } from "lucide-react"
 import { useLanguage } from "@/contexts/language-context"
 
 export default function CategoriesPage() {
@@ -74,8 +74,18 @@ export default function CategoriesPage() {
                 placeholder={t("categories.search")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 pr-10"
               />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                  aria-label="Clear search"
+                >
+                  <X size={16} />
+                </button>
+              )}
             </div>
 
             <div className="overflow-x-auto">
