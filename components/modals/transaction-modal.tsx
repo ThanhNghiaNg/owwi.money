@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Modal } from "@/components/ui/modal"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,6 +23,7 @@ interface TransactionModalProps {
   enterLabel?: string
   title?: string
   isLoading?: boolean
+  showQuickFill?: boolean
 }
 
 const INIT_FORM_DATA = {
@@ -35,13 +36,14 @@ const INIT_FORM_DATA = {
   isDone: true,
 }
 
-export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title = "Modal", initFormData = INIT_FORM_DATA, isLoading }: TransactionModalProps) {
+export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title = "Modal", initFormData = INIT_FORM_DATA, isLoading, showQuickFill: showQuickFillProps=false }: TransactionModalProps) {
   const { data: types = [] } = useQuery(query.type.getAll())
   const { data: categories = [] } = useQuery(query.category.getAll())
   const { data: partners = [] } = useQuery(query.partner.getAll())
   const { t } = useLanguage()
 
   const [formData, setFormData] = useState(initFormData)
+  const amountInputRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
     if (!isOpen) return
@@ -52,8 +54,56 @@ export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title 
   const partnerOptions = partners.map((partner) => ({ value: partner._id, label: partner.name }))
   const typeOptions = types.map(type => ({ value: type._id, label: type.name }))
 
+  const outcomeType = useMemo(
+    () => types.find((type) => type.name?.toLowerCase() === "outcome") || null,
+    [types]
+  )
+
+  const recentOutcomeCategories = useMemo(() => {
+    if (!outcomeType?._id) return []
+    return categories
+      .filter((category) => category.type?._id === outcomeType._id || category.type?.name?.toLowerCase() === "outcome")
+      .slice(0, 5)
+  }, [categories, outcomeType])
+
+  const recentOutcomePartners = useMemo(() => {
+    if (!outcomeType?._id) return []
+    return partners
+      .filter((partner) => partner.type?._id === outcomeType._id || partner.type?.name?.toLowerCase() === "outcome")
+      .slice(0, 5)
+  }, [partners, outcomeType])
+
+  const topOutcomeCategory = useMemo(() => {
+    if (!recentOutcomeCategories.length) return null
+    return [...recentOutcomeCategories].sort((a, b) => (b.usedTime || 0) - (a.usedTime || 0))[0] || null
+  }, [recentOutcomeCategories])
+
+  const topOutcomePartner = useMemo(() => {
+    if (!recentOutcomePartners.length) return null
+    return [...recentOutcomePartners].sort((a, b) => (b.usedTime || 0) - (a.usedTime || 0))[0] || null
+  }, [recentOutcomePartners])
+
+  const showQuickFill = !!outcomeType && !!topOutcomeCategory && !!topOutcomePartner && showQuickFillProps
+
   const resetFormData = (isKeepDate = true) => {
     setFormData((prev) => ({ amount: "", type: "", category: "", partner: "", date: isKeepDate ? prev.date : "", description: "", isDone: true }))
+  }
+
+  const handleQuickFill = () => {
+    if (!outcomeType || !topOutcomeCategory || !topOutcomePartner) {
+      return
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      type: outcomeType._id,
+      category: topOutcomeCategory._id,
+      partner: topOutcomePartner._id,
+    }))
+
+    requestAnimationFrame(() => {
+      amountInputRef.current?.focus()
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,12 +112,27 @@ export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title 
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={title}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={title}
+      headerActions={showQuickFill ? (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handleQuickFill}
+          className="h-8 border-amber-300 bg-amber-50 px-3 text-xs font-semibold text-amber-700 hover:bg-amber-100 hover:text-amber-800 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-900/50"
+        >
+          {t("modal.quickFill")}
+        </Button>
+      ) : null}
+    >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("modal.amount")} <span className="text-red-500">*</span></label>
-            <Input type="number" placeholder="0.00" value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: e.target.value })} required />
+            <Input ref={amountInputRef} type="number" placeholder="0.00" value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: e.target.value })} required />
           </div>
 
           <div className="space-y-2">

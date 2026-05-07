@@ -67,6 +67,7 @@ export type PartnerResponse = {
         name: string;
     },
     description?: string;
+    usedTime?: number;
 }
 
 export type TypeResponse = {
@@ -83,4 +84,5 @@ export type CategoryResponse = {
         name: string;
     },
     description?: string;
+    usedTime?: number;
 }

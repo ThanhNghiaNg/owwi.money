@@ -61,6 +61,7 @@ export function AddTransactionModal({
         onClose={onClose}
         onSubmit={handleSubmit}
         enterLabel={t("modal.addTransactionAction")}
+        showQuickFill
       />
     </div>
   )
