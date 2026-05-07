@@ -55,7 +55,7 @@ export default function CategoriesPage() {
     <div className="flex-1 bg-gray-50 dark:bg-gray-900">
       {isRefetching && <DotLoader />}
       <Header title={t("categories.title")} breadcrumbs={[{ name: t("categories.title") }]} />
-      <div className="p-6">
+      <div className="p-1 sm:p-6">
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -92,32 +92,29 @@ export default function CategoriesPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200 dark:border-gray-700">
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("table.no")}</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("table.name")}</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("table.type")}</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("table.description")}</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("table.actions")}</th>
+                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("table.no")}</th>
+                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("table.name")}</th>
+                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("table.type")}</th>
+                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white truncate">{t("table.description")}</th>
+                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("table.actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredCategories.map((category, index) => (
                     <tr key={category._id} className="border-b border-gray-100 dark:border-gray-800">
-                      <td className="py-3 px-4 text-gray-900 dark:text-white">{index + 1}</td>
-                      <td className="py-3 px-4">
+                      <td className="px-3 py-2 sm:py-3 sm:px-4 text-gray-900 dark:text-white">{index + 1}</td>
+                      <td className="px-3 py-2 sm:py-3 sm:px-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                            <span className="text-sm">{category.type.name === "company" ? <Building /> : <User />}</span>
-                          </div>
-                          <span className="text-gray-900 dark:text-white">{category.name}</span>
+                          <span className="text-gray-900 dark:text-white truncate">{category.name}</span>
                         </div>
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="px-3 py-2 sm:py-3 sm:px-4">
                         <Badge className={getTypeColor(category.type.name)}>{category.type.name}</Badge>
                       </td>
-                      <td className="py-3 px-4">
-                        {category.description}
+                      <td className="px-3 py-2 sm:py-3 sm:px-4">
+                        <span className="text-gray-900 dark:text-white truncate">{category.description}</span>
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="px-3 py-2 sm:py-3 sm:px-4">
                         <div className="flex space-x-2">
                           <Button variant="ghost" size="sm" data-id={category._id} onClick={onEditCategory} title={t("transactions.edit")}>
                             <span className="text-blue-600"><Pencil size={18} /></span>

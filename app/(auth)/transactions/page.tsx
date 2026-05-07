@@ -133,8 +133,8 @@ function TransactionsPage() {
       {(isRefetching || isFetching) && <DotLoader />}
       <Header title={t("transactions.title")} breadcrumbs={[{ name: t("transactions.title") }]} />
 
-      <div className="p-6">
-        <Card>
+      <div className="p-1 sm:p-6">
+        <Card >
           <CardHeader>
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div>
@@ -169,14 +169,15 @@ function TransactionsPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-400 dark:border-gray-700">
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("transactions.no")}</th>
-                    {viewScope === "account" && <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("transactions.profile")}</th>}
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("transactions.category")}</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("transactions.partner")}</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("transactions.type")}</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("transactions.date")}</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("transactions.amount")}</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("transactions.actions")}</th>
+                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("transactions.no")}</th>
+                    {viewScope === "account" && <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("transactions.profile")}</th>}
+                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("transactions.category")}</th>
+                    {/* <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("transactions.partner")}</th> */}
+                    {/* <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("transactions.type")}</th> */}
+                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("transactions.date")}</th>
+                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("transactions.amount")}</th>
+                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white max-w-52">{t("transactions.description")}</th>
+                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("transactions.actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -186,26 +187,27 @@ function TransactionsPage() {
                     const canManage = transaction.createdByProfile?._id === activeProfileId
                     return (
                       <tr key={transaction._id} data-id={transaction._id} className={cn("border-b border-gray-100 dark:border-gray-800 text-gray-900 dark:text-white", showSupportLine && border)} onDoubleClick={onDoubleClickRow}>
-                        <td className="py-3 px-4">{index}</td>
+                        <td className="px-3 py-2 sm:py-3 sm:px-4">{index}</td>
                         {viewScope === "account" && (
-                          <td className="py-3 px-4">
+                          <td className="px-3 py-2 sm:py-3 sm:px-4">
                             {transaction.createdByProfile?.name ? (
-                              <Badge variant="outline">{transaction.createdByProfile.name}</Badge>
+                              <Badge className={`${getTypeColor("")}`}>{transaction.createdByProfile.name}</Badge>
                             ) : (
-                              <Badge variant="outline">{t("transactions.legacy")}</Badge>
+                              <Badge className={`${getTypeColor("")}`}>{t("transactions.legacy")}</Badge>
                             )}
                           </td>
                         )}
-                        <td className="py-3 px-4">{transaction.category.name}</td>
-                        <td className="py-3 px-4">{transaction.partner.name}</td>
-                        <td className="py-3 px-4">
+                        <td className="px-3 py-2 sm:py-3 sm:px-4 truncate">{transaction.category.name}</td>
+                        {/* <td className="px-3 py-2 sm:py-3 sm:px-4">{transaction.partner.name}</td> */}
+                        {/* <td className="px-3 py-2 sm:py-3 sm:px-4">
                           <Badge className={`${getTypeColor(transaction.type.name)}`}>{transaction.type.name}</Badge>
-                        </td>
-                        <td className="py-3 px-4">{formatDate(transaction.date, "dd/mm/yyyy")}</td>
-                        <td className="py-3 px-4">
+                        </td> */}
+                        <td className="px-3 py-2 sm:py-3 sm:px-4">{formatDate(transaction.date, "dd/mm/yyyy")}</td>
+                        <td className="px-3 py-2 sm:py-3 sm:px-4">
                           {transaction.type.name.toLowerCase() === "income" && hideSensitive ? "******" : transaction.amount.toLocaleString()}đ
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="px-3 py-2 sm:py-3 sm:px-4 truncate max-w-52">{transaction.description}</td>
+                        <td className="px-3 py-2 sm:py-3 sm:px-4">
                           <div className="flex items-center space-x-2">
                             <Button variant="ghost" size="sm" data-id={transaction._id} onClick={onEditTransaction} disabled={!canManage} title={canManage ? t("transactions.edit") : t("transactions.switchToEdit")}>
                               <span className={canManage ? "text-blue-600" : "text-gray-400"}><Pencil size={18} /></span>
@@ -219,14 +221,14 @@ function TransactionsPage() {
                     )
                   })}
                   <tr className={cn("border-b border-gray-100 dark:border-gray-800 text-gray-900 dark:text-white", showSupportLine && border)}>
-                    <td className="py-3 px-4"></td>
-                    {viewScope === "account" && <td className="py-3 px-4"></td>}
-                    <td className="py-3 px-4"></td>
-                    <td className="py-3 px-4"></td>
-                    <td className="py-3 px-4"></td>
-                    <td className="py-3 px-4">{t("transactions.totalOutcome")}</td>
-                    <td className="py-3 px-4">{totalOutcome.toLocaleString()}đ</td>
-                    <td className="py-3 px-4"></td>
+                    <td className="px-3 py-2 sm:py-3 sm:px-4"></td>
+                    {viewScope === "account" && <td className="px-3 py-2 sm:py-3 sm:px-4"></td>}
+                    <td className="px-3 py-2 sm:py-3 sm:px-4"></td>
+                    <td className="px-3 py-2 sm:py-3 sm:px-4"></td>
+                    <td className="px-3 py-2 sm:py-3 sm:px-4"></td>
+                    <td className="px-3 py-2 sm:py-3 sm:px-4">{t("transactions.totalOutcome")}</td>
+                    <td className="px-3 py-2 sm:py-3 sm:px-4">{totalOutcome.toLocaleString()}đ</td>
+                    <td className="px-3 py-2 sm:py-3 sm:px-4"></td>
                   </tr>
                 </tbody>
               </table>
