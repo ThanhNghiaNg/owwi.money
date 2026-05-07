@@ -23,6 +23,7 @@ interface TransactionModalProps {
   enterLabel?: string
   title?: string
   isLoading?: boolean
+  showQuickFill?: boolean
 }
 
 const INIT_FORM_DATA = {
@@ -35,7 +36,7 @@ const INIT_FORM_DATA = {
   isDone: true,
 }
 
-export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title = "Modal", initFormData = INIT_FORM_DATA, isLoading }: TransactionModalProps) {
+export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title = "Modal", initFormData = INIT_FORM_DATA, isLoading, showQuickFill: showQuickFillProps=false }: TransactionModalProps) {
   const { data: types = [] } = useQuery(query.type.getAll())
   const { data: categories = [] } = useQuery(query.category.getAll())
   const { data: partners = [] } = useQuery(query.partner.getAll())
@@ -59,17 +60,17 @@ export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title 
   )
 
   const recentOutcomeCategories = useMemo(() => {
-    if (!outcomeType?._id || categories.length < 10) return []
+    if (!outcomeType?._id) return []
     return categories
       .filter((category) => category.type?._id === outcomeType._id || category.type?.name?.toLowerCase() === "outcome")
-      .slice(0, 10)
+      .slice(0, 5)
   }, [categories, outcomeType])
 
   const recentOutcomePartners = useMemo(() => {
-    if (!outcomeType?._id || partners.length < 10) return []
+    if (!outcomeType?._id) return []
     return partners
       .filter((partner) => partner.type?._id === outcomeType._id || partner.type?.name?.toLowerCase() === "outcome")
-      .slice(0, 10)
+      .slice(0, 5)
   }, [partners, outcomeType])
 
   const topOutcomeCategory = useMemo(() => {
@@ -82,7 +83,7 @@ export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title 
     return [...recentOutcomePartners].sort((a, b) => (b.usedTime || 0) - (a.usedTime || 0))[0] || null
   }, [recentOutcomePartners])
 
-  const showQuickFill = !!outcomeType && !!topOutcomeCategory && !!topOutcomePartner
+  const showQuickFill = !!outcomeType && !!topOutcomeCategory && !!topOutcomePartner && showQuickFillProps
 
   const resetFormData = (isKeepDate = true) => {
     setFormData((prev) => ({ amount: "", type: "", category: "", partner: "", date: isKeepDate ? prev.date : "", description: "", isDone: true }))
