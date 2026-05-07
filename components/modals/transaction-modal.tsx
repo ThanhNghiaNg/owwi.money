@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Modal } from "@/components/ui/modal"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -42,6 +42,7 @@ export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title 
   const { t } = useLanguage()
 
   const [formData, setFormData] = useState(initFormData)
+  const amountInputRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
     if (!isOpen) return
@@ -57,21 +58,31 @@ export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title 
     [types]
   )
 
-  const topOutcomeCategory = useMemo(() => {
-    if (!outcomeType?._id) return null
+  const recentOutcomeCategories = useMemo(() => {
+    if (!outcomeType?._id || categories.length < 10) return []
     return categories
       .filter((category) => category.type?._id === outcomeType._id || category.type?.name?.toLowerCase() === "outcome")
-      .sort((a, b) => (b.usedTime || 0) - (a.usedTime || 0))[0] || null
+      .slice(0, 10)
   }, [categories, outcomeType])
 
-  const topOutcomePartner = useMemo(() => {
-    if (!outcomeType?._id) return null
+  const recentOutcomePartners = useMemo(() => {
+    if (!outcomeType?._id || partners.length < 10) return []
     return partners
       .filter((partner) => partner.type?._id === outcomeType._id || partner.type?.name?.toLowerCase() === "outcome")
-      .sort((a, b) => (b.usedTime || 0) - (a.usedTime || 0))[0] || null
+      .slice(0, 10)
   }, [partners, outcomeType])
 
-  const canQuickFill = !!outcomeType && !!topOutcomeCategory && !!topOutcomePartner
+  const topOutcomeCategory = useMemo(() => {
+    if (!recentOutcomeCategories.length) return null
+    return [...recentOutcomeCategories].sort((a, b) => (b.usedTime || 0) - (a.usedTime || 0))[0] || null
+  }, [recentOutcomeCategories])
+
+  const topOutcomePartner = useMemo(() => {
+    if (!recentOutcomePartners.length) return null
+    return [...recentOutcomePartners].sort((a, b) => (b.usedTime || 0) - (a.usedTime || 0))[0] || null
+  }, [recentOutcomePartners])
+
+  const showQuickFill = !!outcomeType && !!topOutcomeCategory && !!topOutcomePartner
 
   const resetFormData = (isKeepDate = true) => {
     setFormData((prev) => ({ amount: "", type: "", category: "", partner: "", date: isKeepDate ? prev.date : "", description: "", isDone: true }))
@@ -88,6 +99,10 @@ export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title 
       category: topOutcomeCategory._id,
       partner: topOutcomePartner._id,
     }))
+
+    requestAnimationFrame(() => {
+      amountInputRef.current?.focus()
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -100,24 +115,23 @@ export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title 
       isOpen={isOpen}
       onClose={onClose}
       title={title}
-      headerActions={(
+      headerActions={showQuickFill ? (
         <Button
           type="button"
           variant="outline"
           size="sm"
           onClick={handleQuickFill}
-          disabled={!canQuickFill}
           className="h-8 border-amber-300 bg-amber-50 px-3 text-xs font-semibold text-amber-700 hover:bg-amber-100 hover:text-amber-800 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-900/50"
         >
-          Điền nhanh
+          {t("modal.quickFill")}
         </Button>
-      )}
+      ) : null}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("modal.amount")} <span className="text-red-500">*</span></label>
-            <Input type="number" placeholder="0.00" value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: e.target.value })} required />
+            <Input ref={amountInputRef} type="number" placeholder="0.00" value={formData.amount} onChange={(e) => setFormData({ ...formData, amount: e.target.value })} required />
           </div>
 
           <div className="space-y-2">
