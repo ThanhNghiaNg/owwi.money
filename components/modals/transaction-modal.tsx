@@ -36,7 +36,7 @@ const INIT_FORM_DATA = {
   isDone: true,
 }
 
-export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title = "Modal", initFormData = INIT_FORM_DATA, isLoading, showQuickFill: showQuickFillProps=false }: TransactionModalProps) {
+export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title = "Modal", initFormData = INIT_FORM_DATA, isLoading, showQuickFill: showQuickFillProps = false }: TransactionModalProps) {
   const { data: types = [] } = useQuery(query.type.getAll())
   const { data: categories = [] } = useQuery(query.category.getAll())
   const { data: partners = [] } = useQuery(query.partner.getAll())
@@ -94,6 +94,8 @@ export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title 
       return
     }
 
+    amountInputRef.current?.focus()
+
     setFormData((prev) => ({
       ...prev,
       type: outcomeType._id,
@@ -101,9 +103,6 @@ export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title 
       partner: topOutcomePartner._id,
     }))
 
-    requestAnimationFrame(() => {
-      amountInputRef.current?.focus()
-    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
