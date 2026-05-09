@@ -18,25 +18,48 @@ interface PieChartProps {
 export const PieChart = React.memo(({ data, size = 300 }: PieChartProps) => {
   const svgRef = React.useRef<SVGSVGElement>(null)
   const [hiddenSlices, setHiddenSlices] = React.useState<string[]>([])
+
+  const displayData = useMemo(
+    () => data.filter((item) => !hiddenSlices.includes(item.name)),
+    [data, hiddenSlices]
+  )
+
   const total = useMemo(() => {
-    const displayData = data.filter(item => !hiddenSlices.includes(item.name))
     return displayData.reduce((sum, item) => sum + item.value, 0)
-  },
-    [data, hiddenSlices])
+  }, [displayData])
+
   const radius = size / 2 - 10
   const centerX = size / 2
   const centerY = size / 2
+
   const toggleVisibleSlice = useCallback((event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    const sliceName = event.currentTarget.dataset.sliceName;
+    const sliceName = event.currentTarget.dataset.sliceName
     if (sliceName) {
       setHiddenSlices((prev) =>
         prev.includes(sliceName) ? prev.filter((name) => name !== sliceName) : [...prev, sliceName]
-      );
+      )
     }
   }, [])
+
   const slices = useMemo(() => {
-    let currentAngle = -90 // Start from top
-    const displayData = data.filter(item => !hiddenSlices.includes(item.name))
+    if (!displayData.length || total <= 0) {
+      return []
+    }
+
+    if (displayData.length === 1) {
+      const item = displayData[0]
+      return [
+        {
+          ...item,
+          isFullCircle: true,
+          percentage: 100,
+          labelX: centerX,
+          labelY: centerY,
+        },
+      ]
+    }
+
+    let currentAngle = -90
     return displayData.map((item) => {
       const percentage = item.value / total
       const angle = percentage * 360
@@ -60,7 +83,6 @@ export const PieChart = React.memo(({ data, size = 300 }: PieChartProps) => {
         "Z",
       ].join(" ")
 
-      // Label position
       const labelAngle = (startAngle + endAngle) / 2
       const labelAngleRad = (labelAngle * Math.PI) / 180
       const labelRadius = radius * 0.7
@@ -71,57 +93,49 @@ export const PieChart = React.memo(({ data, size = 300 }: PieChartProps) => {
 
       return {
         ...item,
+        isFullCircle: false,
         pathData,
         percentage: Math.round(percentage * 100),
         labelX,
         labelY,
       }
     })
-  }, [data, hiddenSlices, total, radius, centerX, centerY])
+  }, [displayData, total, radius, centerX, centerY])
+
   const onShowToolTip = useCallback((event: React.MouseEvent<SVGGElement, MouseEvent>) => {
     if (svgRef.current) {
-      const svgRect = svgRef.current.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-
-      // Get cursor position relative to SVG
-      const newX = event.clientX - svgRect.left;
-      const newY = event.clientY - svgRect.top;
-      // Get tooltip data
-      const dataTooltip = event.currentTarget.dataset.tooltip;
-      const tooltip = document.getElementById("tooltip-pie-chart");
+      const svgRect = svgRef.current.getBoundingClientRect()
+      const viewportWidth = window.innerWidth
+      const newX = event.clientX - svgRect.left
+      const newY = event.clientY - svgRect.top
+      const dataTooltip = event.currentTarget.dataset.tooltip
+      const tooltip = document.getElementById("tooltip-pie-chart")
 
       if (tooltip && dataTooltip) {
-        // Create tooltip content
-        tooltip.textContent = dataTooltip;
-        tooltip.style.opacity = "1";
+        tooltip.textContent = dataTooltip
+        tooltip.style.opacity = "1"
 
-        // Get the tooltip's dimensions after rendering content
-        const tooltipRect = tooltip.getBoundingClientRect();
-        const tooltipWidth = tooltipRect.width;
-        const tooltipHeight = tooltipRect.height;
+        const tooltipRect = tooltip.getBoundingClientRect()
+        const tooltipWidth = tooltipRect.width
+        const tooltipHeight = tooltipRect.height
 
-        // Determine tooltip position
-        let tooltipX = newX + 4; // Default: right of cursor
-        let tooltipY = newY + 4; // Default: below cursor
+        let tooltipX = newX + 4
+        let tooltipY = newY + 4
 
-        // Adjust X position (left or right of cursor)
-        const spaceRight = viewportWidth - (event.clientX + tooltipWidth + 4);
+        const spaceRight = viewportWidth - (event.clientX + tooltipWidth + 4)
         if (spaceRight < 0) {
-          // Not enough space on the right, place tooltip to the left
-          tooltipX = newX - tooltipWidth - 4;
+          tooltipX = newX - tooltipWidth - 4
         }
 
-        // Ensure tooltip stays within SVG bounds if needed
-        tooltipX = Math.max(0, Math.min(tooltipX, svgRect.width - tooltipWidth));
-        tooltipY = Math.max(0, Math.min(tooltipY, svgRect.height - tooltipHeight));
+        tooltipX = Math.max(0, Math.min(tooltipX, svgRect.width - tooltipWidth))
+        tooltipY = Math.max(0, Math.min(tooltipY, svgRect.height - tooltipHeight))
 
-        // Update tooltip position
-        (tooltip).style.left = `${tooltipX}px`;
-        (tooltip).style.top = `${tooltipY}px`;
-        tooltip.style.opacity = "1";
+        tooltip.style.left = `${tooltipX}px`
+        tooltip.style.top = `${tooltipY}px`
+        tooltip.style.opacity = "1"
       }
     }
-  }, []);
+  }, [])
 
   const onHideToolTip = useCallback(() => {
     const tooltip = document.getElementById("tooltip-pie-chart")
@@ -135,21 +149,34 @@ export const PieChart = React.memo(({ data, size = 300 }: PieChartProps) => {
     <div className="w-full flex flex-col items-center relative">
       <div id="tooltip-pie-chart" className="absolute opacity-0 w-max bg-gray-800 text-white p-2 rounded shadow-lg"></div>
       <svg width={size} height={size} className="overflow-visible" ref={svgRef}>
-        {slices.map((slice, index) => (
-          <g key={slice.name}
+        {slices.map((slice) => (
+          <g
+            key={slice.name}
             data-tooltip={`${slice.name}: ${currency(slice.value)} (${slice.percentage}%)`}
             onMouseEnter={onShowToolTip}
             onMouseLeave={onHideToolTip}
             onClick={onShowToolTip}
             onBlur={onHideToolTip}
           >
-            <path
-              d={slice.pathData}
-              fill={slice.color}
-              stroke="white"
-              strokeWidth={2}
-              className="hover:opacity-80 transition-opacity cursor-pointer"
-            />
+            {slice.isFullCircle ? (
+              <circle
+                cx={centerX}
+                cy={centerY}
+                r={radius}
+                fill={slice.color}
+                stroke="white"
+                strokeWidth={2}
+                className="hover:opacity-80 transition-opacity cursor-pointer"
+              />
+            ) : (
+              <path
+                d={slice.pathData}
+                fill={slice.color}
+                stroke="white"
+                strokeWidth={2}
+                className="hover:opacity-80 transition-opacity cursor-pointer"
+              />
+            )}
             {slice.percentage > 5 && (
               <text
                 x={slice.labelX}
@@ -167,22 +194,19 @@ export const PieChart = React.memo(({ data, size = 300 }: PieChartProps) => {
         ))}
       </svg>
 
-      {/* Legend */}
       <div className="mt-2 flex flex-wrap justify-center gap-2">
         {data.map((item) => (
-          <div key={item.name} className={
-            cn("flex items-center gap-2 cursor-pointer",
-              hiddenSlices.includes(item.name) && "line-through")
-          }
+          <div
+            key={item.name}
+            className={cn("flex items-center gap-2 cursor-pointer", hiddenSlices.includes(item.name) && "line-through")}
             onClick={toggleVisibleSlice}
-            data-slice-name={item.name}>
+            data-slice-name={item.name}
+          >
             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
             <span className="text-sm text-gray-700 dark:text-gray-300">{item.name}</span>
           </div>
         ))}
-        <div className="w-full text-center">
-          Total: {currency(total)}
-        </div>
+        <div className="w-full text-center">Total: {currency(total)}</div>
       </div>
     </div>
   )
