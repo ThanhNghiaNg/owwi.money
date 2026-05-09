@@ -15,6 +15,7 @@ export const dashboardDictionary: Dictionaries = {
     "dashboard.expenseCategories": "Danh mục chi tiêu",
     "dashboard.categoryBreakdownAll": "Cơ cấu chi tiêu theo danh mục của tất cả profile trong tháng",
     "dashboard.categoryBreakdownProfile": "Cơ cấu chi tiêu theo danh mục của profile này trong tháng",
+    "dashboard.total": "Tổng",
   },
   en: {
     "dashboard.title": "Dashboard",
@@ -30,6 +31,7 @@ export const dashboardDictionary: Dictionaries = {
     "dashboard.expenseCategories": "Expense Categories",
     "dashboard.categoryBreakdownAll": "Month outcome breakdown across all profiles",
     "dashboard.categoryBreakdownProfile": "Month outcome breakdown by category for this profile",
+    "dashboard.total": "Total",
   },
   "zh-TW": {
     "dashboard.title": "儀表板",
@@ -45,6 +47,7 @@ export const dashboardDictionary: Dictionaries = {
     "dashboard.expenseCategories": "支出分類",
     "dashboard.categoryBreakdownAll": "所有 Profile 的當月分類支出分佈",
     "dashboard.categoryBreakdownProfile": "此 Profile 的當月分類支出分佈",
+    "dashboard.total": "總計",
   },
   "zh-CN": {
     "dashboard.title": "仪表盘",
@@ -60,6 +63,7 @@ export const dashboardDictionary: Dictionaries = {
     "dashboard.expenseCategories": "支出分类",
     "dashboard.categoryBreakdownAll": "所有 Profile 的当月分类支出分布",
     "dashboard.categoryBreakdownProfile": "这个 Profile 的当月分类支出分布",
+    "dashboard.total": "总计",
   },
   ja: {
     "dashboard.title": "ダッシュボード",
@@ -75,6 +79,7 @@ export const dashboardDictionary: Dictionaries = {
     "dashboard.expenseCategories": "支出カテゴリ",
     "dashboard.categoryBreakdownAll": "全プロフィールの月別カテゴリ支出内訳",
     "dashboard.categoryBreakdownProfile": "このプロフィールの月別カテゴリ支出内訳",
+    "dashboard.total": "合計",
   },
   ko: {
     "dashboard.title": "대시보드",
@@ -90,5 +95,6 @@ export const dashboardDictionary: Dictionaries = {
     "dashboard.expenseCategories": "지출 카테고리",
     "dashboard.categoryBreakdownAll": "모든 프로필의 월간 카테고리 지출 분포",
     "dashboard.categoryBreakdownProfile": "이 프로필의 월간 카테고리 지출 분포",
+    "dashboard.total": "합계",
   }
 }
