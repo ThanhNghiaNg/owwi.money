@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils"
 import { currency } from "@/utils/formats/number"
 import React, { useCallback, useMemo } from "react"
+import { useLanguage } from "@/contexts/language-context"
 
 interface PieChartData {
   name: string
@@ -18,6 +19,7 @@ interface PieChartProps {
 export const PieChart = React.memo(({ data, size = 300 }: PieChartProps) => {
   const svgRef = React.useRef<SVGSVGElement>(null)
   const [hiddenSlices, setHiddenSlices] = React.useState<string[]>([])
+  const { t } = useLanguage()
 
   const displayData = useMemo(
     () => data.filter((item) => !hiddenSlices.includes(item.name)),
@@ -206,7 +208,7 @@ export const PieChart = React.memo(({ data, size = 300 }: PieChartProps) => {
             <span className="text-sm text-gray-700 dark:text-gray-300">{item.name}</span>
           </div>
         ))}
-        <div className="w-full text-center">Total: {currency(total)}</div>
+        <div className="w-full text-center">{t("dashboard.total")}: {currency(total)}</div>
       </div>
     </div>
   )
