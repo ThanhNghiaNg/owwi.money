@@ -64,6 +64,21 @@ async function staleWhileRevalidate(request, cacheName) {
   return networkResponse || Response.error();
 }
 
+async function networkFirst(request, cacheName) {
+  const cache = await caches.open(cacheName);
+
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse && networkResponse.ok) {
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch {
+    const cached = await cache.match(request);
+    return cached || Response.error();
+  }
+}
+
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') {
     return;
@@ -82,7 +97,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (isStatisticRequest(url)) {
-    event.respondWith(staleWhileRevalidate(event.request, STATS_CACHE));
+    event.respondWith(networkFirst(event.request, STATS_CACHE));
     return;
   }
 });
