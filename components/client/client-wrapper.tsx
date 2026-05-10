@@ -9,6 +9,7 @@ import { APP_VERSION } from '@/lib/env';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import React, { JSX, useEffect } from 'react';
+import { FloatingQuickEntry } from './floating-quick-entry';
 
 function ClientWrapper({ children }: { children: React.ReactNode }): JSX.Element {
   const router = useRouter();
@@ -57,6 +58,7 @@ function ClientWrapper({ children }: { children: React.ReactNode }): JSX.Element
       <LanguageProvider>
         <ProfileProvider>
           {children}
+          <FloatingQuickEntry />
         </ProfileProvider>
       </LanguageProvider>
     </QueryClientProvider>
