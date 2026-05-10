@@ -10,6 +10,7 @@ import { useProfile } from '@/contexts/profile-context';
 import { currency } from '@/utils/formats/number';
 import { useQuery } from '@tanstack/react-query';
 import React, { useEffect, useMemo, useState } from 'react';
+import toast from 'react-hot-toast';
 
 type JarConfig = {
   id: string;
@@ -177,12 +178,18 @@ export function SixJarsBuilder() {
   };
 
   const handleSave = () => {
-    setSavedJars(draftJars);
-    writeSavedConfig(draftJars);
+    try {
+      setSavedJars(draftJars);
+      writeSavedConfig(draftJars);
+      toast.success('Đã lưu cấu hình 6 hũ')
+    } catch {
+      toast.error('Lưu cấu hình 6 hũ thất bại')
+    }
   };
 
   const handleCancel = () => {
     setDraftJars(savedJars);
+    toast.success('Đã hoàn tác thay đổi chưa lưu')
   };
 
   return (

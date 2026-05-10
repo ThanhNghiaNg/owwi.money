@@ -21,9 +21,11 @@ export const PieChart = React.memo(({ data, size = 300 }: PieChartProps) => {
   const [hiddenSlices, setHiddenSlices] = React.useState<string[]>([])
   const { t } = useLanguage()
 
+  const normalizedData = useMemo(() => data.filter((item) => Number(item.value) > 0), [data])
+
   const displayData = useMemo(
-    () => data.filter((item) => !hiddenSlices.includes(item.name)),
-    [data, hiddenSlices]
+    () => normalizedData.filter((item) => !hiddenSlices.includes(item.name)),
+    [normalizedData, hiddenSlices]
   )
 
   const total = useMemo(() => {
@@ -197,7 +199,7 @@ export const PieChart = React.memo(({ data, size = 300 }: PieChartProps) => {
       </svg>
 
       <div className="mt-2 flex flex-wrap justify-center gap-2">
-        {data.map((item) => (
+        {normalizedData.map((item) => (
           <div
             key={item.name}
             className={cn("flex items-center gap-2 cursor-pointer", hiddenSlices.includes(item.name) && "line-through")}
