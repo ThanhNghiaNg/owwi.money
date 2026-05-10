@@ -5,6 +5,7 @@ import { setupAxiosInterceptors } from '@/api/axios-setup';
 import queryClient from '@/api/queryClient';
 import { LanguageProvider } from '@/contexts/language-context';
 import { ProfileProvider } from '@/contexts/profile-context';
+import { APP_VERSION } from '@/lib/env';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import React, { JSX, useEffect } from 'react';
@@ -16,6 +17,7 @@ function ClientWrapper({ children }: { children: React.ReactNode }): JSX.Element
     setIsSettingUp(true);
     setupAxiosInterceptors(router, axiosInstance);
     setupAxiosInterceptors(router, axiosHomeInstance);
+    console.debug('[owwi.newui] app version:', APP_VERSION);
     setIsSettingUp(false);
   }, [router])
 
