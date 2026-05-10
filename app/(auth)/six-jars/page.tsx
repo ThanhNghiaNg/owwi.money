@@ -1,11 +1,8 @@
-import React from 'react'
+import React from 'react';
+import { SixJarsBuilder } from '@/components/six-jars/six-jars-builder';
 
 const SixJars = () => {
-  return (
-    <div className='w-full h-[100vh] flex justify-center items-center'>
-        <h1 className='text-center'>This page is in development...</h1>
-    </div>
-  )
-}
+  return <SixJarsBuilder />;
+};
 
-export default SixJars
+export default SixJars;
