@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "echo $VERCEL_GIT_COMMIT_SHA && next build",
-    "build:analyze": "ANALYZE=true next build",
+    "build": "echo $VERCEL_GIT_COMMIT_SHA && next build && node scripts/verify-pwa-build.mjs",
+    "build:analyze": "ANALYZE=true next build && node scripts/verify-pwa-build.mjs",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start"
