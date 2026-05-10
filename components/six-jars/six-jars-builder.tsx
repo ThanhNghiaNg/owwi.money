@@ -1,7 +1,6 @@
 'use client';
 
 import { query } from '@/api/query';
-import type { CategoryResponse } from '@/api/types';
 import { PieChart } from '@/components/charts/pie-chart';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -19,6 +18,20 @@ type JarConfig = {
   categoryIds: string[];
 };
 
+type StatisticMonthResponse = {
+  data?: Array<{
+    name?: string;
+    totalAmount?: number;
+    color?: string;
+  }>;
+};
+
+type MonthlyStatItem = {
+  name?: string;
+  totalAmount?: number;
+  color?: string;
+};
+
 const STORAGE_KEY = 'owwi.newui:six-jars-config';
 
 const DEFAULT_JARS: JarConfig[] = [
@@ -31,14 +44,6 @@ const DEFAULT_JARS: JarConfig[] = [
 ];
 
 const JAR_COLORS = ['#14B8A6', '#38BDF8', '#818CF8', '#F59E0B', '#F472B6', '#A3E635'];
-
-type MonthlyStatItem = {
-  _id?: string;
-  name?: string;
-  total?: number;
-  amount?: number;
-  value?: number;
-};
 
 function readSavedConfig() {
   if (typeof window === 'undefined') return DEFAULT_JARS;
@@ -61,7 +66,7 @@ function writeSavedConfig(jars: JarConfig[]) {
 }
 
 function getStatValue(item: MonthlyStatItem) {
-  return item.total ?? item.amount ?? item.value ?? 0;
+  return item.totalAmount ?? 0;
 }
 
 function getDayProgress() {
@@ -73,8 +78,9 @@ function getDayProgress() {
 
 export function SixJarsBuilder() {
   const { activeProfile, viewScope } = useProfile();
+  const currentMonth = new Date().getMonth() + 1;
   const { data: categories = [] } = useQuery(query.category.getAll());
-  const { data: monthlyStats = [] } = useQuery(query.transaction.statistic.monthly(viewScope));
+  const { data: monthlyStatsResponse } = useQuery(query.transaction.statistic.month(currentMonth, viewScope));
   const [savedJars, setSavedJars] = useState<JarConfig[]>(DEFAULT_JARS);
   const [draftJars, setDraftJars] = useState<JarConfig[]>(DEFAULT_JARS);
   const [editingJarId, setEditingJarId] = useState<string | null>(DEFAULT_JARS[0].id);
@@ -90,12 +96,13 @@ export function SixJarsBuilder() {
     [draftJars]
   );
 
-  const statsByCategoryId = useMemo(() => {
+  const monthlyStats = ((monthlyStatsResponse as StatisticMonthResponse | undefined)?.data ?? []) as MonthlyStatItem[];
+
+  const statsByCategoryName = useMemo(() => {
     const map = new Map<string, number>();
-    monthlyStats.forEach((item: MonthlyStatItem) => {
-      const id = item._id;
-      if (id) {
-        map.set(id, getStatValue(item));
+    monthlyStats.forEach((item) => {
+      if (item.name) {
+        map.set(item.name, getStatValue(item));
       }
     });
     return map;
@@ -107,7 +114,11 @@ export function SixJarsBuilder() {
 
   const jarsWithMetrics = useMemo(() => {
     return draftJars.map((jar, index) => {
-      const totalSpent = jar.categoryIds.reduce((sum, categoryId) => sum + (statsByCategoryId.get(categoryId) || 0), 0);
+      const totalSpent = jar.categoryIds.reduce((sum, categoryId) => {
+        const category = categories.find((item) => item._id === categoryId);
+        if (!category?.name) return sum;
+        return sum + (statsByCategoryName.get(category.name) || 0);
+      }, 0);
       const averageDailySpent = passedDays > 0 ? totalSpent / passedDays : 0;
       const expectedSpend = totalIncome * (jar.targetPercent / 100);
 
@@ -125,7 +136,7 @@ export function SixJarsBuilder() {
         tone,
       };
     });
-  }, [draftJars, passedDays, statsByCategoryId, totalIncome, averageDailyIncome]);
+  }, [draftJars, passedDays, statsByCategoryName, totalIncome, averageDailyIncome, categories]);
 
   const currentJar = jarsWithMetrics.find((jar) => jar.id === editingJarId) || jarsWithMetrics[0];
 
