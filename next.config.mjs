@@ -1,12 +1,4 @@
 import nextBundleAnalyzer from '@next/bundle-analyzer';
-import pwa from 'next-pwa';
-
-const withPWA = pwa({
-  dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
-  register: true,
-  skipWaiting: true,
-});
 
 const withBundleAnalyzer = nextBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
@@ -25,8 +17,8 @@ const nextConfig = {
   },
   env: {
     NEXT_PUBLIC_APP_VERSION:
-      process.env.VERCEL_GIT_COMMIT_SHA ?? "local",
+      process.env.VERCEL_GIT_COMMIT_SHA ?? 'local',
   },
 };
 
-export default withBundleAnalyzer(withPWA(nextConfig));
+export default withBundleAnalyzer(nextConfig);
