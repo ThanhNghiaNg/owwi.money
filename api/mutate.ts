@@ -7,8 +7,26 @@ import { createPartner, deletePartner, updatePartner } from "./partners";
 import { createCategory, deleteCategory, updateCategory } from "./category";
 import { createProfile, deleteProfile, selectProfile, updateProfile } from "./profile";
 
+const clearTransactionStatisticCaches = async () => {
+  if (typeof window === "undefined" || !("caches" in window)) {
+    return;
+  }
+
+  const cacheKeys = await window.caches.keys();
+  await Promise.all(
+    cacheKeys
+      .filter((cacheName) => cacheName.startsWith("transaction-statistics-"))
+      .map((cacheName) => window.caches.delete(cacheName))
+  );
+};
+
 const invalidateTransactionQueries = async (queryKey?: object) => {
+  await clearTransactionStatisticCaches();
+
   await Promise.all([
+    queryClient.removeQueries({
+      queryKey: [...queryKeys.all, "transactions", "statistic"]
+    }),
     queryClient.invalidateQueries({
       queryKey: queryKeys.transactions(queryKey)
     }),
@@ -21,8 +39,8 @@ const invalidateTransactionQueries = async (queryKey?: object) => {
     queryClient.invalidateQueries({
       queryKey: [...queryKeys.all, "transactions", "statistic"]
     }),
-  ])
-}
+  ]);
+};
 
 export const MutationKey = {
   user: {
@@ -88,21 +106,21 @@ export const mutation = {
       mutationKey: MutationKey.transaction.create(),
       mutationFn: createTransaction,
       onSuccess: async () => {
-        await invalidateTransactionQueries(queryKey)
+        await invalidateTransactionQueries(queryKey);
       }
     }),
     update: (queryKey?: object) => useMutation({
       mutationKey: MutationKey.transaction.update(),
       mutationFn: updateTransaction,
       onSuccess: async () => {
-        await invalidateTransactionQueries(queryKey)
+        await invalidateTransactionQueries(queryKey);
       }
     }),
     delete: (queryKey?: object) => useMutation({
       mutationKey: MutationKey.transaction.delete(),
       mutationFn: deleteTransaction,
       onSuccess: async () => {
-        await invalidateTransactionQueries(queryKey)
+        await invalidateTransactionQueries(queryKey);
       }
     })
   },
@@ -113,7 +131,7 @@ export const mutation = {
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: queryKeys.partners()
-        })
+        });
       }
     }),
     update: () => useMutation({
@@ -122,7 +140,7 @@ export const mutation = {
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: queryKeys.partners()
-        })
+        });
       }
     }),
     delete: () => useMutation({
@@ -131,7 +149,7 @@ export const mutation = {
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: queryKeys.partners()
-        })
+        });
       }
     })
   },
@@ -142,7 +160,7 @@ export const mutation = {
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: queryKeys.categories()
-        })
+        });
       }
     }),
     update: () => useMutation({
@@ -151,7 +169,7 @@ export const mutation = {
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: queryKeys.categories()
-        })
+        });
       }
     }),
     delete: () => useMutation({
@@ -160,7 +178,7 @@ export const mutation = {
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: queryKeys.categories()
-        })
+        });
       }
     })
   },
@@ -169,35 +187,35 @@ export const mutation = {
       mutationKey: MutationKey.profile.create(),
       mutationFn: createProfile,
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.profiles() })
-        queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() })
+        queryClient.invalidateQueries({ queryKey: queryKeys.profiles() });
+        queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() });
       }
     }),
     update: () => useMutation({
       mutationKey: MutationKey.profile.update(),
       mutationFn: updateProfile,
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.profiles() })
-        queryClient.invalidateQueries({ queryKey: queryKeys.activeProfile() })
-        queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() })
+        queryClient.invalidateQueries({ queryKey: queryKeys.profiles() });
+        queryClient.invalidateQueries({ queryKey: queryKeys.activeProfile() });
+        queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() });
       }
     }),
     delete: () => useMutation({
       mutationKey: MutationKey.profile.delete(),
       mutationFn: deleteProfile,
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.profiles() })
-        queryClient.invalidateQueries({ queryKey: queryKeys.activeProfile() })
-        queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() })
+        queryClient.invalidateQueries({ queryKey: queryKeys.profiles() });
+        queryClient.invalidateQueries({ queryKey: queryKeys.activeProfile() });
+        queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() });
       }
     }),
     select: () => useMutation({
       mutationKey: MutationKey.profile.select(),
       mutationFn: selectProfile,
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: queryKeys.activeProfile() })
-        queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() })
-        queryClient.invalidateQueries({ queryKey: queryKeys.transactions() })
+        queryClient.invalidateQueries({ queryKey: queryKeys.activeProfile() });
+        queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() });
+        queryClient.invalidateQueries({ queryKey: queryKeys.transactions() });
       }
     }),
   },
