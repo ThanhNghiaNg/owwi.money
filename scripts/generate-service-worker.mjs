@@ -9,9 +9,7 @@ mkdirSync(publicDir, { recursive: true });
 
 const source = `const APP_VERSION = ${JSON.stringify(APP_VERSION)};
 const ASSET_CACHE = 'assets-' + APP_VERSION;
-const TYPE_CACHE = 'types-' + APP_VERSION;
-const STATS_CACHE = 'transaction-statistics-' + APP_VERSION;
-const ACTIVE_CACHES = [ASSET_CACHE, TYPE_CACHE, STATS_CACHE];
+const ACTIVE_CACHES = [ASSET_CACHE];
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -35,14 +33,6 @@ function isAssetRequest(request) {
   return destination === 'script' || destination === 'style';
 }
 
-function isTypeRequest(url) {
-  return url.pathname === '/user/type/all';
-}
-
-function isStatisticRequest(url) {
-  return url.pathname.startsWith('/v2/transactions/statistic/');
-}
-
 async function staleWhileRevalidate(request, cacheName) {
   const cache = await caches.open(cacheName);
   const cached = await cache.match(request);
@@ -64,41 +54,13 @@ async function staleWhileRevalidate(request, cacheName) {
   return networkResponse || Response.error();
 }
 
-async function networkFirst(request, cacheName) {
-  const cache = await caches.open(cacheName);
-
-  try {
-    const networkResponse = await fetch(request);
-    if (networkResponse && networkResponse.ok) {
-      cache.put(request, networkResponse.clone());
-    }
-    return networkResponse;
-  } catch {
-    const cached = await cache.match(request);
-    return cached || Response.error();
-  }
-}
-
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') {
     return;
   }
 
-  const url = new URL(event.request.url);
-
   if (isAssetRequest(event.request)) {
     event.respondWith(staleWhileRevalidate(event.request, ASSET_CACHE));
-    return;
-  }
-
-  if (isTypeRequest(url)) {
-    event.respondWith(staleWhileRevalidate(event.request, TYPE_CACHE));
-    return;
-  }
-
-  if (isStatisticRequest(url)) {
-    event.respondWith(networkFirst(event.request, STATS_CACHE));
-    return;
   }
 });
 `;

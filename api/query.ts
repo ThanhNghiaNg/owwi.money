@@ -8,6 +8,7 @@ import { createProfile, deleteProfile, getActiveProfile, getProfiles, selectProf
 import { FIVE_MINUTE_MILL, ONE_HOUR_MILL } from "@/utils/constants/variables";
 import { TableResponse } from "./types";
 import { ViewScope } from "@/contexts/profile-context";
+import { createSnapshotKey, readSnapshot, writeSnapshot } from "@/lib/query-snapshot";
 
 export const keys = {
     all: ['all'],
@@ -25,7 +26,16 @@ export const keys = {
     partners: () => [...keys.all, 'partners'],
     profiles: () => [...keys.all, 'profiles'],
     activeProfile: () => [...keys.all, 'profiles', 'active'],
-}
+};
+
+const snapshotKeys = {
+    types: () => createSnapshotKey(['types']),
+    categories: () => createSnapshotKey(['categories']),
+    partners: () => createSnapshotKey(['partners']),
+    transactionsStatisticWeekly: (scope: ViewScope) => createSnapshotKey(['transactions-statistic', 'weekly', scope]),
+    transactionsStatisticMonthly: (scope: ViewScope) => createSnapshotKey(['transactions-statistic', 'monthly', scope]),
+    transactionsStatisticMonth: (month: number, scope: ViewScope) => createSnapshotKey(['transactions-statistic', 'month', month, scope]),
+};
 
 export const query = {
     user: {
@@ -37,21 +47,36 @@ export const query = {
     type: {
         getAll: () => queryOptions({
             queryKey: keys.types(),
-            queryFn: getAllTypes,
+            queryFn: async () => {
+                const data = await getAllTypes();
+                writeSnapshot(snapshotKeys.types(), data);
+                return data;
+            },
+            placeholderData: () => readSnapshot(snapshotKeys.types()),
             staleTime: ONE_HOUR_MILL,
         })
     },
     category: {
         getAll: () => queryOptions({
             queryKey: keys.categories(),
-            queryFn: getAllCategories,
+            queryFn: async () => {
+                const data = await getAllCategories();
+                writeSnapshot(snapshotKeys.categories(), data);
+                return data;
+            },
+            placeholderData: () => readSnapshot(snapshotKeys.categories()),
             staleTime: ONE_HOUR_MILL,
         })
     },
     partner: {
         getAll: () => queryOptions({
             queryKey: keys.partners(),
-            queryFn: getAllPartners,
+            queryFn: async () => {
+                const data = await getAllPartners();
+                writeSnapshot(snapshotKeys.partners(), data);
+                return data;
+            },
+            placeholderData: () => readSnapshot(snapshotKeys.partners()),
             staleTime: ONE_HOUR_MILL,
         })
     },
@@ -77,24 +102,39 @@ export const query = {
             initialPageParam: null,
             staleTime: FIVE_MINUTE_MILL,
             getNextPageParam: (lastPage: TableResponse<Transaction> | any) => {
-                return lastPage?.nextCursor || null
+                return lastPage?.nextCursor || null;
             },
         }),
         statistic: {
             weekly: (scope: ViewScope = "profile") =>
                 queryOptions({
                     queryKey: keys.transactions_statistic_weekly(scope),
-                    queryFn: () => statisticWeekly(scope),
+                    queryFn: async () => {
+                        const data = await statisticWeekly(scope);
+                        writeSnapshot(snapshotKeys.transactionsStatisticWeekly(scope), data);
+                        return data;
+                    },
+                    placeholderData: () => readSnapshot(snapshotKeys.transactionsStatisticWeekly(scope)),
                 }),
             monthly: (scope: ViewScope = "profile") =>
                 queryOptions({
                     queryKey: keys.transactions_statistic_monthly(scope),
-                    queryFn: () => statisticMonthly(scope),
+                    queryFn: async () => {
+                        const data = await statisticMonthly(scope);
+                        writeSnapshot(snapshotKeys.transactionsStatisticMonthly(scope), data);
+                        return data;
+                    },
+                    placeholderData: () => readSnapshot(snapshotKeys.transactionsStatisticMonthly(scope)),
                 }),
             month: (month: number, scope: ViewScope = "profile") =>
                 queryOptions({
                     queryKey: keys.transactions_statistic_month(month, scope),
-                    queryFn: () => statisticMonth(month, scope),
+                    queryFn: async () => {
+                        const data = await statisticMonth(month, scope);
+                        writeSnapshot(snapshotKeys.transactionsStatisticMonth(month, scope), data);
+                        return data;
+                    },
+                    placeholderData: () => readSnapshot(snapshotKeys.transactionsStatisticMonth(month, scope)),
                 }),
         }
     },
@@ -107,4 +147,4 @@ export const profileApi = {
     createProfile,
     updateProfile,
     deleteProfile,
-}
+};
