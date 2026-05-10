@@ -7,10 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/combobox';
 import { Input } from '@/components/ui/input';
-import { useProfileContext } from '@/contexts/profile-context';
+import { useProfile } from '@/contexts/profile-context';
 import { currency } from '@/utils/formats/number';
 import { useQuery } from '@tanstack/react-query';
-import { Info } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 
 type JarConfig = {
@@ -73,7 +72,7 @@ function getDayProgress() {
 }
 
 export function SixJarsBuilder() {
-  const { activeProfile, viewScope } = useProfileContext();
+  const { activeProfile, viewScope } = useProfile();
   const { data: categories = [] } = useQuery(query.category.getAll());
   const { data: monthlyStats = [] } = useQuery(query.transaction.statistic.monthly(viewScope));
   const [savedJars, setSavedJars] = useState<JarConfig[]>(DEFAULT_JARS);
