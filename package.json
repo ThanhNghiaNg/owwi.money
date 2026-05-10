@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "echo $VERCEL_GIT_COMMIT_SHA && next build && node scripts/verify-pwa-build.mjs",
-    "build:analyze": "ANALYZE=true next build && node scripts/verify-pwa-build.mjs",
-    "dev": "next dev",
+    "prebuild": "node scripts/generate-service-worker.mjs",
+    "build": "echo $VERCEL_GIT_COMMIT_SHA && next build",
+    "build:analyze": "ANALYZE=true next build",
+    "dev": "node scripts/generate-service-worker.mjs && next dev",
     "lint": "next lint",
     "start": "next start"
   },
@@ -18,7 +19,6 @@
     "clsx": "2.1.1",
     "lucide-react": "0.454.0",
     "next": "15.2.8",
-    "next-pwa": "^5.6.0",
     "next-themes": "0.4.4",
     "react": "19",
     "react-dom": "19",

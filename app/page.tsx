@@ -6,7 +6,7 @@ import { useEffect } from "react";
 export default function Page() {
   const router = useRouter();
 
-  useEffect(()=>{
+  useEffect(() => {
     router.push(ROUTES.DASHBOARD);
   }, [router])
 

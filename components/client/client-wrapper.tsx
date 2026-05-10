@@ -21,7 +21,16 @@ function ClientWrapper({ children }: { children: React.ReactNode }): JSX.Element
     console.debug('[owwi.newui] app version:', APP_VERSION);
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.ready
+      navigator.serviceWorker.register('/sw.js')
+        .then((registration) => {
+          console.debug('[owwi.newui] service worker registered:', {
+            scope: registration.scope,
+            activeScript: registration.active?.scriptURL || null,
+            installingScript: registration.installing?.scriptURL || null,
+            waitingScript: registration.waiting?.scriptURL || null,
+          });
+          return navigator.serviceWorker.ready;
+        })
         .then((registration) => {
           console.debug('[owwi.newui] service worker ready:', {
             scope: registration.scope,
@@ -30,7 +39,7 @@ function ClientWrapper({ children }: { children: React.ReactNode }): JSX.Element
           });
         })
         .catch((error) => {
-          console.debug('[owwi.newui] service worker ready failed:', error);
+          console.debug('[owwi.newui] service worker register failed:', error);
         });
     } else {
       console.debug('[owwi.newui] service worker unsupported in this browser');
