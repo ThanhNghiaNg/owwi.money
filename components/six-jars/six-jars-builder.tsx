@@ -260,7 +260,7 @@ export function SixJarsBuilder() {
         </section>
 
         <section className="h-fit self-center rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="mb-4 flex flex-wrap items-center justify-center gap-3 text-center">
+          <div className="mb-4 flex flex-col flex-wrap items-center justify-center gap-3 text-center">
             <div>
               <h2 className="text-xl font-semibold text-slate-900 dark:text-white">{t('sixJars.previewTitle')}</h2>
               <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
