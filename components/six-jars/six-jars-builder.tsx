@@ -145,6 +145,12 @@ export function SixJarsBuilder() {
               const assignedCategories = getAssignedCategories(jar);
               const availableCategoryOptions = getAvailableCategoryOptions(jar);
               const isEditing = editingJarId === jar.id;
+              const progressPercent = jar.plannedAmount > 0 ? Math.min((jar.totalSpent / jar.plannedAmount) * 100, 100) : 0;
+              const progressBarClass = jar.tone === 'danger'
+                ? 'bg-rose-500'
+                : jar.tone === 'warning'
+                  ? 'bg-amber-400'
+                  : 'bg-emerald-500';
 
               return (
                 <div key={jar.id} className={`rounded-2xl border p-4 transition ${toneClass}`}>
@@ -155,7 +161,7 @@ export function SixJarsBuilder() {
                         <h2 className="font-semibold text-slate-900 dark:text-white">{jar.name}</h2>
                       </div>
                       <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        {jar.categoryIds.length} category · {currency(jar.totalSpent)}
+                        {jar.categoryIds.length} category · {currency(jar.totalSpent)} / {currency(jar.plannedAmount)}
                       </p>
                     </div>
                     <Button
@@ -168,6 +174,13 @@ export function SixJarsBuilder() {
                     >
                       {isEditing ? <Check className="h-4 w-4" /> : <Pencil className="h-4 w-4" />}
                     </Button>
+                  </div>
+
+                  <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+                    <div
+                      className={`h-full rounded-full transition-all ${progressBarClass}`}
+                      style={{ width: `${progressPercent}%` }}
+                    />
                   </div>
 
                   {isEditing && (
