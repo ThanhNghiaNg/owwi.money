@@ -195,7 +195,7 @@ export function SixJarsBuilder() {
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-6 dark:bg-slate-950 md:px-6">
       <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <section className="h-fit self-start rounded-3xl border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-6 dark:border-slate-800 dark:bg-slate-900">
           <div className="mb-5">
             <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">6 Jars</h1>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
