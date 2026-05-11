@@ -120,13 +120,13 @@ export function SixJarsBuilder() {
         if (!category?.name) return sum;
         return sum + (statsByCategoryName.get(category.name) || 0);
       }, 0);
-      const averageDailySpent = passedDays > 0 ? totalSpent / passedDays : 0;
       const expectedSpend = totalIncome * (jar.targetPercent / 100);
+      const allowedToDate = totalDays > 0 ? (expectedSpend / totalDays) * passedDays : expectedSpend;
 
       let tone: 'default' | 'warning' | 'danger' = 'default';
       if (totalSpent > expectedSpend) {
         tone = 'danger';
-      } else if (averageDailySpent > averageDailyIncome) {
+      } else if (totalSpent > allowedToDate) {
         tone = 'warning';
       }
 
@@ -137,7 +137,7 @@ export function SixJarsBuilder() {
         tone,
       };
     });
-  }, [draftJars, passedDays, statsByCategoryName, totalIncome, averageDailyIncome, categories]);
+  }, [draftJars, passedDays, statsByCategoryName, totalIncome, totalDays, categories]);
 
   const currentJar = jarsWithMetrics.find((jar) => jar.id === editingJarId) || jarsWithMetrics[0];
 
