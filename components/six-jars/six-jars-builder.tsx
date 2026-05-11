@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { useProfile } from '@/contexts/profile-context';
 import { currency } from '@/utils/formats/number';
 import { useQuery } from '@tanstack/react-query';
+import { Check, Pencil } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 
@@ -84,7 +85,7 @@ export function SixJarsBuilder() {
   const { data: monthlyStatsResponse } = useQuery(query.transaction.statistic.month(currentMonth, viewScope));
   const [savedJars, setSavedJars] = useState<JarConfig[]>(DEFAULT_JARS);
   const [draftJars, setDraftJars] = useState<JarConfig[]>(DEFAULT_JARS);
-  const [editingJarId, setEditingJarId] = useState<string | null>(DEFAULT_JARS[0].id);
+  const [editingJarId, setEditingJarId] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = readSavedConfig();
@@ -111,7 +112,6 @@ export function SixJarsBuilder() {
 
   const totalIncome = useMemo(() => 27000000, []);
   const { passedDays, totalDays } = useMemo(() => getDayProgress(), []);
-  const averageDailyIncome = totalIncome / totalDays;
 
   const jarsWithMetrics = useMemo(() => {
     return draftJars.map((jar, index) => {
@@ -139,26 +139,6 @@ export function SixJarsBuilder() {
     });
   }, [draftJars, passedDays, statsByCategoryName, totalIncome, totalDays, categories]);
 
-  const currentJar = jarsWithMetrics.find((jar) => jar.id === editingJarId) || jarsWithMetrics[0];
-
-  const assignedCategories = useMemo(
-    () => categories.filter((category) => currentJar?.categoryIds.includes(category._id)),
-    [categories, currentJar]
-  );
-
-  const availableCategoryOptions = useMemo(() => {
-    if (!currentJar) return [];
-    return categories
-      .filter((category) => {
-        if (currentJar.categoryIds.includes(category._id)) return false;
-        return !selectedCategoryIds.includes(category._id);
-      })
-      .map((category) => ({
-        value: category._id,
-        label: category.name,
-      }));
-  }, [categories, currentJar, selectedCategoryIds]);
-
   const pieData = useMemo(
     () => jarsWithMetrics.map((jar) => ({ name: jar.name, value: jar.totalSpent, color: jar.color })),
     [jarsWithMetrics]
@@ -168,34 +148,51 @@ export function SixJarsBuilder() {
     setDraftJars((prev) => prev.map((jar) => (jar.id === jarId ? updater(jar) : jar)));
   };
 
-  const handleAddCategory = (categoryId: string) => {
-    if (!currentJar || !categoryId) return;
-    updateJar(currentJar.id, (jar) => ({ ...jar, categoryIds: [...jar.categoryIds, categoryId] }));
+  const getAssignedCategories = (jar: JarConfig) => {
+    return categories.filter((category) => jar.categoryIds.includes(category._id));
+  };
+
+  const getAvailableCategoryOptions = (jar: JarConfig) => {
+    return categories
+      .filter((category) => {
+        if (jar.categoryIds.includes(category._id)) return false;
+        return !selectedCategoryIds.includes(category._id);
+      })
+      .map((category) => ({
+        value: category._id,
+        label: category.name,
+      }));
+  };
+
+  const handleAddCategory = (jarId: string, categoryId: string) => {
+    if (!categoryId) return;
+    updateJar(jarId, (jar) => ({ ...jar, categoryIds: [...jar.categoryIds, categoryId] }));
   };
 
   const handleRemoveCategory = (jarId: string, categoryId: string) => {
     updateJar(jarId, (jar) => ({ ...jar, categoryIds: jar.categoryIds.filter((id) => id !== categoryId) }));
   };
 
-  const handleSave = () => {
-    try {
-      setSavedJars(draftJars);
-      writeSavedConfig(draftJars);
-      toast.success('Đã lưu cấu hình 6 hũ')
-    } catch {
-      toast.error('Lưu cấu hình 6 hũ thất bại')
+  const handleToggleEdit = (jarId: string) => {
+    if (editingJarId === jarId) {
+      try {
+        setSavedJars(draftJars);
+        writeSavedConfig(draftJars);
+        setEditingJarId(null);
+        toast.success('Đã lưu cấu hình 6 hũ');
+      } catch {
+        toast.error('Lưu cấu hình 6 hũ thất bại');
+      }
+      return;
     }
-  };
 
-  const handleCancel = () => {
-    setDraftJars(savedJars);
-    toast.success('Đã hoàn tác thay đổi chưa lưu')
+    setEditingJarId(jarId);
   };
 
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-6 dark:bg-slate-950 md:px-6">
       <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-        <section className="h-fit self-start rounded-3xl border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-6 dark:border-slate-800 dark:bg-slate-900">
+        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div className="mb-5">
             <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">6 Jars</h1>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -210,6 +207,9 @@ export function SixJarsBuilder() {
                 : jar.tone === 'warning'
                   ? 'border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30'
                   : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900';
+              const assignedCategories = getAssignedCategories(jar);
+              const availableCategoryOptions = getAvailableCategoryOptions(jar);
+              const isEditing = editingJarId === jar.id;
 
               return (
                 <div key={jar.id} className={`rounded-2xl border p-4 transition ${toneClass}`}>
@@ -223,12 +223,18 @@ export function SixJarsBuilder() {
                         {jar.categoryIds.length} category · {currency(jar.totalSpent)}
                       </p>
                     </div>
-                    <Button type="button" variant="outline" size="sm" onClick={() => setEditingJarId(jar.id)}>
-                      Edit
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handleToggleEdit(jar.id)}
+                      className="h-9 w-9"
+                    >
+                      {isEditing ? <Check className="h-4 w-4" /> : <Pencil className="h-4 w-4" />}
                     </Button>
                   </div>
 
-                  {editingJarId === jar.id && (
+                  {isEditing && (
                     <div className="mt-4 space-y-4 border-t border-slate-200 pt-4 dark:border-slate-800">
                       <div>
                         <p className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-200">Categories đã chọn</p>
@@ -255,7 +261,7 @@ export function SixJarsBuilder() {
                         <Combobox
                           options={availableCategoryOptions}
                           value=""
-                          onChange={handleAddCategory}
+                          onChange={(value) => handleAddCategory(jar.id, value)}
                           placeholder="Chọn category chưa thuộc nhóm nào"
                         />
                       </div>
@@ -282,14 +288,9 @@ export function SixJarsBuilder() {
               );
             })}
           </div>
-
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Button type="button" onClick={handleSave}>Save</Button>
-            <Button type="button" variant="outline" onClick={handleCancel}>Hủy</Button>
-          </div>
         </section>
 
-        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <section className="h-fit self-start rounded-3xl border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-6 dark:border-slate-800 dark:bg-slate-900">
           <div className="mb-4">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Preview 6 hũ</h2>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
