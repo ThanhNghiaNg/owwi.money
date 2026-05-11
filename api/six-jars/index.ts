@@ -1,11 +1,13 @@
 import { axiosInstance } from "../axios";
 import type { SixJarsConfigResponse, SixJarsMonthStatisticResponse, UpdateSixJarsConfigPayload } from "../types";
 
-export const getSixJarsConfig = async (): Promise<SixJarsConfigResponse> => {
-  return axiosInstance.get<SixJarsConfigResponse, any>("/six-jars/config");
+export const getSixJarsConfig = async (month: number, year: number): Promise<SixJarsConfigResponse> => {
+  return axiosInstance.get<SixJarsConfigResponse, any>("/six-jars/config", {
+    params: { month, year },
+  });
 };
 
-export const updateSixJarsConfig = async (payload: UpdateSixJarsConfigPayload): Promise<SixJarsConfigResponse> => {
+export const updateSixJarsConfig = async (payload: UpdateSixJarsConfigPayload & { month: number; year: number }): Promise<SixJarsConfigResponse> => {
   return axiosInstance.put<SixJarsConfigResponse, any>("/six-jars/config", payload);
 };
 

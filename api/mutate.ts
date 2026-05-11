@@ -225,13 +225,13 @@ export const mutation = {
     }),
   },
   sixJars: {
-    updateConfig: () => useMutation({
-      mutationKey: MutationKey.sixJars.updateConfig(),
+    updateConfig: (month: number, year: number) => useMutation({
+      mutationKey: [...MutationKey.sixJars.updateConfig(), month, year],
       mutationFn: updateSixJarsConfig,
       onSuccess: async () => {
         await Promise.all([
-          queryClient.invalidateQueries({ queryKey: queryKeys.sixJarsConfig() }),
-          queryClient.invalidateQueries({ queryKey: [...queryKeys.all, 'six-jars', 'statistic'] }),
+          queryClient.invalidateQueries({ queryKey: queryKeys.sixJarsConfig(month, year) }),
+          queryClient.invalidateQueries({ queryKey: queryKeys.sixJarsMonthStatistic(month, year) }),
         ]);
       }
     }),

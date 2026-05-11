@@ -97,10 +97,15 @@ export type SixJarConfigItem = {
 export type SixJarsConfigResponse = {
     jars: SixJarConfigItem[];
     isDefault: boolean;
+    month?: number;
+    year?: number;
+    inheritedFrom?: { month: number; year: number } | null;
     message?: string;
 }
 
 export type UpdateSixJarsConfigPayload = {
+    month: number;
+    year: number;
     jars: SixJarConfigItem[];
 }
 
@@ -118,5 +123,6 @@ export type SixJarsMonthStatisticResponse = {
     daysInMonth: number;
     passedDays: number;
     isDefaultConfig: boolean;
+    inheritedFrom?: { month: number; year: number } | null;
     jars: SixJarStatisticItem[];
 }

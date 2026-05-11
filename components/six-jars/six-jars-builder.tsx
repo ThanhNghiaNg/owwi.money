@@ -34,9 +34,9 @@ export function SixJarsBuilder() {
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
   const { data: categories = [] } = useQuery(query.category.getAll());
-  const { data: configResponse } = useQuery(query.sixJars.config());
+  const { data: configResponse } = useQuery(query.sixJars.config(currentMonth, currentYear));
   const { data: statisticResponse } = useQuery(query.sixJars.monthStatistic(currentMonth, currentYear));
-  const { mutateAsync: updateConfigMutation, isPending: isSaving } = mutation.sixJars.updateConfig();
+  const { mutateAsync: updateConfigMutation, isPending: isSaving } = mutation.sixJars.updateConfig(currentMonth, currentYear);
   const [draftJars, setDraftJars] = useState<JarConfig[]>([]);
   const [editingJarId, setEditingJarId] = useState<string | null>(null);
 
@@ -117,7 +117,7 @@ export function SixJarsBuilder() {
   const handleToggleEdit = async (jarId: string) => {
     if (editingJarId === jarId) {
       try {
-        const response = await updateConfigMutation({ jars: draftJars });
+        const response = await updateConfigMutation({ month: currentMonth, year: currentYear, jars: draftJars });
         setDraftJars(response.jars);
         setEditingJarId(null);
         toast.success(t('sixJars.saveSuccess'));
