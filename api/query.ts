@@ -9,6 +9,7 @@ import { FIVE_MINUTE_MILL, ONE_HOUR_MILL } from "@/utils/constants/variables";
 import { TableResponse } from "./types";
 import { ViewScope } from "@/contexts/profile-context";
 import { createSnapshotKey, readSnapshot, writeSnapshot } from "@/lib/query-snapshot";
+import { getSixJarsConfig, getSixJarsMonthStatistic } from "./six-jars";
 
 export const keys = {
     all: ['all'],
@@ -26,6 +27,8 @@ export const keys = {
     partners: () => [...keys.all, 'partners'],
     profiles: () => [...keys.all, 'profiles'],
     activeProfile: () => [...keys.all, 'profiles', 'active'],
+    sixJarsConfig: () => [...keys.all, 'six-jars', 'config'],
+    sixJarsMonthStatistic: (month: number, year: number) => [...keys.all, 'six-jars', 'statistic', 'month', month, year],
 };
 
 const snapshotKeys = {
@@ -88,6 +91,16 @@ export const query = {
         active: () => queryOptions({
             queryKey: keys.activeProfile(),
             queryFn: getActiveProfile,
+        }),
+    },
+    sixJars: {
+        config: () => queryOptions({
+            queryKey: keys.sixJarsConfig(),
+            queryFn: getSixJarsConfig,
+        }),
+        monthStatistic: (month: number, year: number) => queryOptions({
+            queryKey: keys.sixJarsMonthStatistic(month, year),
+            queryFn: () => getSixJarsMonthStatistic(month, year),
         }),
     },
     transaction: {

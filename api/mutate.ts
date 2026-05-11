@@ -6,6 +6,7 @@ import { keys as queryKeys } from "./query";
 import { createPartner, deletePartner, updatePartner } from "./partners";
 import { createCategory, deleteCategory, updateCategory } from "./category";
 import { createProfile, deleteProfile, selectProfile, updateProfile } from "./profile";
+import { updateSixJarsConfig } from "./six-jars";
 
 const clearTransactionStatisticCaches = async () => {
   if (typeof window === "undefined" || !("caches" in window)) {
@@ -73,6 +74,10 @@ export const MutationKey = {
     update: () => [...MutationKey.profile.mutation, "update"],
     delete: () => [...MutationKey.profile.mutation, "delete"],
     select: () => [...MutationKey.profile.mutation, "select"],
+  },
+  sixJars: {
+    mutation: ["six-jars-mutation"],
+    updateConfig: () => [...MutationKey.sixJars.mutation, "update-config"],
   },
 };
 
@@ -216,6 +221,18 @@ export const mutation = {
         queryClient.invalidateQueries({ queryKey: queryKeys.activeProfile() });
         queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() });
         queryClient.invalidateQueries({ queryKey: queryKeys.transactions() });
+      }
+    }),
+  },
+  sixJars: {
+    updateConfig: () => useMutation({
+      mutationKey: MutationKey.sixJars.updateConfig(),
+      mutationFn: updateSixJarsConfig,
+      onSuccess: async () => {
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: queryKeys.sixJarsConfig() }),
+          queryClient.invalidateQueries({ queryKey: [...queryKeys.all, 'six-jars', 'statistic'] }),
+        ]);
       }
     }),
   },

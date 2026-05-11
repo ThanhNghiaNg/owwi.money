@@ -29,6 +29,10 @@ self.addEventListener('activate', (event) => {
 });
 
 function isAssetRequest(request) {
+  if (!request.url.startsWith('http://') && !request.url.startsWith('https://')) {
+    return false;
+  }
+
   const destination = request.destination;
   return destination === 'script' || destination === 'style';
 }
@@ -39,7 +43,7 @@ async function staleWhileRevalidate(request, cacheName) {
 
   const networkPromise = fetch(request)
     .then((response) => {
-      if (response && response.ok) {
+      if (response && response.ok && (request.url.startsWith('http://') || request.url.startsWith('https://'))) {
         cache.put(request, response.clone());
       }
       return response;

@@ -86,3 +86,37 @@ export type CategoryResponse = {
     description?: string;
     usedTime?: number;
 }
+
+export type SixJarConfigItem = {
+    id: string;
+    name: string;
+    plannedAmount: number;
+    categoryIds: string[];
+}
+
+export type SixJarsConfigResponse = {
+    jars: SixJarConfigItem[];
+    isDefault: boolean;
+    message?: string;
+}
+
+export type UpdateSixJarsConfigPayload = {
+    jars: SixJarConfigItem[];
+}
+
+export type SixJarStatisticItem = SixJarConfigItem & {
+    totalSpent: number;
+    allowedToDate: number;
+    tone: "default" | "warning" | "danger";
+}
+
+export type SixJarsMonthStatisticResponse = {
+    scope: "account";
+    month: number;
+    year: number;
+    monthlyIncome: number;
+    daysInMonth: number;
+    passedDays: number;
+    isDefaultConfig: boolean;
+    jars: SixJarStatisticItem[];
+}
