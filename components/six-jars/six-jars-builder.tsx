@@ -22,7 +22,7 @@ function buildFallbackJarsFromStatistic(statisticJars: SixJarStatisticItem[]): J
   return statisticJars.map((jar) => ({
     id: jar.id,
     name: jar.name,
-    targetPercent: jar.targetPercent,
+    plannedAmount: jar.plannedAmount,
     categoryIds: jar.categoryIds,
   }));
 }
@@ -68,7 +68,6 @@ export function SixJarsBuilder() {
         ...jar,
         color: JAR_COLORS[index % JAR_COLORS.length],
         totalSpent: statisticJar?.totalSpent || 0,
-        expectedSpend: statisticJar?.expectedSpend || 0,
         allowedToDate: statisticJar?.allowedToDate || 0,
         tone: statisticJar?.tone || 'default',
       };
@@ -205,18 +204,12 @@ export function SixJarsBuilder() {
 
                       <div>
                         <label className="mb-2 flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
-                          % thu nhập
-                          <span className="group relative inline-flex h-4 w-4 cursor-help items-center justify-center rounded-full bg-slate-200 text-[10px] text-slate-600 dark:bg-slate-700 dark:text-slate-200">
-                            i
-                            <span className="absolute left-1/2 top-6 z-10 hidden w-56 -translate-x-1/2 rounded-xl bg-slate-900 px-3 py-2 text-xs text-white shadow-lg group-hover:block">
-                              Phần trăm chi tiêu dự kiến trên thu nhập
-                            </span>
-                          </span>
+                          Số tiền dự kiến dùng trong tháng
                         </label>
                         <Input
                           type="number"
-                          value={jar.targetPercent}
-                          onChange={(event) => updateJar(jar.id, (item) => ({ ...item, targetPercent: Number(event.target.value || 0) }))}
+                          value={jar.plannedAmount}
+                          onChange={(event) => updateJar(jar.id, (item) => ({ ...item, plannedAmount: Number(event.target.value || 0) }))}
                         />
                       </div>
                     </div>
@@ -227,7 +220,7 @@ export function SixJarsBuilder() {
           </div>
         </section>
 
-        <section className="h-fit self-start rounded-3xl border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-6 dark:border-slate-800 dark:bg-slate-900">
+        <section className="h-fit self-center rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div className="mb-4">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Preview 6 hũ</h2>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">

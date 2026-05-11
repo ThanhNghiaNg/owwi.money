@@ -90,7 +90,7 @@ export type CategoryResponse = {
 export type SixJarConfigItem = {
     id: string;
     name: string;
-    targetPercent: number;
+    plannedAmount: number;
     categoryIds: string[];
 }
 
@@ -106,7 +106,6 @@ export type UpdateSixJarsConfigPayload = {
 
 export type SixJarStatisticItem = SixJarConfigItem & {
     totalSpent: number;
-    expectedSpend: number;
     allowedToDate: number;
     tone: "default" | "warning" | "danger";
 }
