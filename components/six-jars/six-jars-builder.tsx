@@ -109,7 +109,7 @@ export function SixJarsBuilder() {
     return map;
   }, [monthlyStats]);
 
-  const totalIncome = useMemo(() => 100000000, []);
+  const totalIncome = useMemo(() => 27000000, []);
   const { passedDays, totalDays } = useMemo(() => getDayProgress(), []);
   const averageDailyIncome = totalIncome / totalDays;
 
