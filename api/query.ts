@@ -27,7 +27,7 @@ export const keys = {
     partners: () => [...keys.all, 'partners'],
     profiles: () => [...keys.all, 'profiles'],
     activeProfile: () => [...keys.all, 'profiles', 'active'],
-    sixJarsConfig: () => [...keys.all, 'six-jars', 'config'],
+    sixJarsConfig: (month: number, year: number) => [...keys.all, 'six-jars', 'config', month, year],
     sixJarsMonthStatistic: (month: number, year: number) => [...keys.all, 'six-jars', 'statistic', 'month', month, year],
 };
 
@@ -94,9 +94,9 @@ export const query = {
         }),
     },
     sixJars: {
-        config: () => queryOptions({
-            queryKey: keys.sixJarsConfig(),
-            queryFn: getSixJarsConfig,
+        config: (month: number, year: number) => queryOptions({
+            queryKey: keys.sixJarsConfig(month, year),
+            queryFn: () => getSixJarsConfig(month, year),
         }),
         monthStatistic: (month: number, year: number) => queryOptions({
             queryKey: keys.sixJarsMonthStatistic(month, year),

@@ -14,9 +14,10 @@ interface PieChartData {
 interface PieChartProps {
   data: PieChartData[]
   size?: number
+  emptyText?: string
 }
 
-export const PieChart = React.memo(({ data, size = 300 }: PieChartProps) => {
+export const PieChart = React.memo(({ data, size = 300, emptyText }: PieChartProps) => {
   const svgRef = React.useRef<SVGSVGElement>(null)
   const [hiddenSlices, setHiddenSlices] = React.useState<string[]>([])
   const { t } = useLanguage()
@@ -149,6 +150,14 @@ export const PieChart = React.memo(({ data, size = 300 }: PieChartProps) => {
     }
   }, [])
 
+  if (!normalizedData.length) {
+    return (
+      <div className="flex min-h-[320px] w-full items-center justify-center rounded-2xl border border-dashed border-slate-300 px-6 py-10 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+        {emptyText || t("sixJars.noData")}
+      </div>
+    )
+  }
+
   return (
     <div className="w-full flex flex-col items-center relative">
       <div id="tooltip-pie-chart" className="absolute opacity-0 w-max bg-gray-800 text-white p-2 rounded shadow-lg"></div>
@@ -210,7 +219,7 @@ export const PieChart = React.memo(({ data, size = 300 }: PieChartProps) => {
             <span className="text-sm text-gray-700 dark:text-gray-300">{item.name}</span>
           </div>
         ))}
-        <div className="w-full text-center">{t("dashboard.total")}: {currency(total)}</div>
+        {total > 0 && <div className="w-full text-center">{t("dashboard.total")}: {currency(total)}</div>}
       </div>
     </div>
   )
