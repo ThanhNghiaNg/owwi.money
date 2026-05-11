@@ -150,38 +150,11 @@ export function SixJarsBuilder() {
     <div className="min-h-screen bg-slate-50 px-4 py-6 dark:bg-slate-950 md:px-6">
       <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="mb-5 space-y-3">
-            <div>
-              <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">{t('sixJars.title')}</h1>
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                {t('sixJars.description')}
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="w-full max-w-[180px]">
-                <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                  {t('sixJars.snapshotMonth')}
-                </label>
-                <Input
-                  type="month"
-                  value={formatMonthInputValue(selectedMonth, selectedYear)}
-                  onChange={(event) => {
-                    const { month, year } = parseMonthInputValue(event.target.value);
-                    if (month && year) {
-                      setSelectedMonth(month);
-                      setSelectedYear(year);
-                    }
-                  }}
-                />
-              </div>
-
-              {inheritedLabel && (
-                <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
-                  {inheritedLabel}
-                </Badge>
-              )}
-            </div>
+          <div className="mb-5">
+            <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">{t('sixJars.title')}</h1>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              {t('sixJars.description')}
+            </p>
           </div>
 
           <div className="space-y-3">
@@ -287,13 +260,40 @@ export function SixJarsBuilder() {
         </section>
 
         <section className="h-fit self-center rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="mb-4">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">{t('sixJars.previewTitle')}</h2>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              {t('sixJars.previewDescription')}
-            </p>
+          <div className="mb-4 space-y-3">
+            <div>
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-white">{t('sixJars.previewTitle')}</h2>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                {t('sixJars.previewDescription')}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="w-full max-w-[180px]">
+                <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                  {t('sixJars.snapshotMonth')}
+                </label>
+                <Input
+                  type="month"
+                  value={formatMonthInputValue(selectedMonth, selectedYear)}
+                  onChange={(event) => {
+                    const { month, year } = parseMonthInputValue(event.target.value);
+                    if (month && year) {
+                      setSelectedMonth(month);
+                      setSelectedYear(year);
+                    }
+                  }}
+                />
+              </div>
+
+              {inheritedLabel && (
+                <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
+                  {inheritedLabel}
+                </Badge>
+              )}
+            </div>
           </div>
-          <PieChart data={pieData} size={320} />
+          <PieChart data={pieData} size={320} emptyText={t('sixJars.noData')} />
         </section>
       </div>
     </div>
