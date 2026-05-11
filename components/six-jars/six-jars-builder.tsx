@@ -134,11 +134,6 @@ export function SixJarsBuilder() {
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               Gom nhóm category detail thành 6 hũ theo account scope.
             </p>
-            {statisticResponse && (
-              <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                Thu nhập tháng này: {currency(statisticResponse.monthlyIncome)}
-              </p>
-            )}
           </div>
 
           <div className="space-y-3">
@@ -162,9 +157,6 @@ export function SixJarsBuilder() {
                       </div>
                       <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                         {jar.categoryIds.length} category · {currency(jar.totalSpent)}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
-                        Tiến độ: {currency(jar.totalSpent)} / {currency(jar.allowedToDate)} · Trần tháng: {currency(jar.expectedSpend)}
                       </p>
                     </div>
                     <Button
