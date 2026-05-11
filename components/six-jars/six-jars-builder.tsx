@@ -66,9 +66,12 @@ export function SixJarsBuilder() {
 
     return draftJars.map((jar, index) => {
       const statisticJar = statisticMap.get(jar.id);
+      const monthlyIncome = statisticResponse?.monthlyIncome || 0;
+      const plannedPercent = monthlyIncome > 0 ? Math.round((jar.plannedAmount / monthlyIncome) * 100) : 0;
       return {
         ...jar,
         displayName: t(`sixJars.jar.${jar.id}`),
+        plannedPercent,
         color: JAR_COLORS[index % JAR_COLORS.length],
         totalSpent: statisticJar?.totalSpent || 0,
         allowedToDate: statisticJar?.allowedToDate || 0,
@@ -161,7 +164,7 @@ export function SixJarsBuilder() {
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="inline-block h-3 w-3 rounded-full" style={{ backgroundColor: jar.color }} />
-                        <h2 className="font-semibold text-slate-900 dark:text-white">{jar.displayName}</h2>
+                        <h2 className="font-semibold text-slate-900 dark:text-white">{jar.displayName} ({jar.plannedPercent}%)</h2>
                       </div>
                       <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                         {t('sixJars.categoryCount', {
