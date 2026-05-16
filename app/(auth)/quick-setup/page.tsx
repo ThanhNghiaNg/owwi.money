@@ -6,7 +6,6 @@ import toast from "react-hot-toast"
 import { Header } from "@/components/header"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { DotLoader } from "@/components/ui/skeleton/dot-loader"
 import { QuickTransactionSetupModal } from "@/components/modals/quick-transaction-setup-modal"
 import { mutation } from "@/api/mutate"
@@ -92,9 +91,12 @@ export default function QuickSetupPage() {
                       <td className="py-3 px-4">{index + 1}</td>
                       <td className="py-3 px-4 font-medium">{setup.title}</td>
                       <td className="py-3 px-4">
-                        <Badge style={{ backgroundColor: colorToRgba(setup.color), borderColor: setup.color, color: "#fff" }} className="border">
+                        <span
+                          className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium text-white"
+                          style={{ backgroundColor: colorToRgba(setup.color), borderColor: setup.color }}
+                        >
                           {setup.title}
-                        </Badge>
+                        </span>
                       </td>
                       <td className="py-3 px-4">{setup.amount.toLocaleString()}đ</td>
                       <td className="py-3 px-4">{setup.type?.name}</td>
