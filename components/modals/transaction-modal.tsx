@@ -36,14 +36,25 @@ const INIT_FORM_DATA = {
   isDone: true,
 }
 
+function colorToRgba(color: string, alpha = 0.8) {
+  const hex = color.replace("#", "")
+  if (hex.length !== 6) return color
+  const r = parseInt(hex.slice(0, 2), 16)
+  const g = parseInt(hex.slice(2, 4), 16)
+  const b = parseInt(hex.slice(4, 6), 16)
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
 export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title = "Modal", initFormData = INIT_FORM_DATA, isLoading, showQuickFill: showQuickFillProps = false }: TransactionModalProps) {
   const { data: types = [] } = useQuery(query.type.getAll())
   const { data: categories = [] } = useQuery(query.category.getAll())
   const { data: partners = [] } = useQuery(query.partner.getAll())
+  const { data: quickSetupResponse } = useQuery({ ...query.quickTransactionSetup.getAll(), enabled: showQuickFillProps && isOpen })
   const { t } = useLanguage()
 
   const [formData, setFormData] = useState(initFormData)
   const amountInputRef = useRef<HTMLInputElement | null>(null)
+  const submitButtonRef = useRef<HTMLButtonElement | null>(null)
 
   useEffect(() => {
     if (!isOpen) return
@@ -53,6 +64,7 @@ export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title 
   const categoryOptions = categories.map((cat) => ({ value: cat._id, label: cat.name }))
   const partnerOptions = partners.map((partner) => ({ value: partner._id, label: partner.name }))
   const typeOptions = types.map(type => ({ value: type._id, label: type.name }))
+  const quickSetups = quickSetupResponse?.data || []
 
   const outcomeType = useMemo(
     () => types.find((type) => type.name?.toLowerCase() === "outcome") || null,
@@ -83,10 +95,18 @@ export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title 
     return [...recentOutcomePartners].sort((a, b) => (b.usedTime || 0) - (a.usedTime || 0))[0] || null
   }, [recentOutcomePartners])
 
-  const showQuickFill = !!outcomeType && !!topOutcomeCategory && !!topOutcomePartner && showQuickFillProps
+  const showDefaultQuickFill = !!outcomeType && !!topOutcomeCategory && !!topOutcomePartner && showQuickFillProps
+  const showQuickSetupList = showQuickFillProps && quickSetups.length > 0
 
   const resetFormData = (isKeepDate = true) => {
     setFormData((prev) => ({ amount: "", type: "", category: "", partner: "", date: isKeepDate ? prev.date : "", description: "", isDone: true }))
+  }
+
+  const scrollToSubmit = () => {
+    window.setTimeout(() => {
+      submitButtonRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
+      submitButtonRef.current?.focus()
+    }, 50)
   }
 
   const handleQuickFill = () => {
@@ -102,7 +122,18 @@ export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title 
       category: topOutcomeCategory._id,
       partner: topOutcomePartner._id,
     }))
+  }
 
+  const handleQuickSetupFill = (setup: typeof quickSetups[number]) => {
+    setFormData((prev) => ({
+      ...prev,
+      amount: String(setup.amount ?? ""),
+      type: setup.type?._id || "",
+      category: setup.category?._id || "",
+      partner: setup.partner?._id || "",
+      description: setup.description || "",
+    }))
+    scrollToSubmit()
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -115,7 +146,7 @@ export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title 
       isOpen={isOpen}
       onClose={onClose}
       title={title}
-      headerActions={showQuickFill ? (
+      headerActions={showDefaultQuickFill ? (
         <Button
           type="button"
           variant="outline"
@@ -127,6 +158,25 @@ export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title 
         </Button>
       ) : null}
     >
+      {showQuickSetupList && (
+        <div className="mb-4 space-y-2">
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{t("quickSetup.quickFillList")}</p>
+          <div className="flex flex-wrap gap-2">
+            {quickSetups.map((setup) => (
+              <button
+                key={setup._id}
+                type="button"
+                onClick={() => handleQuickSetupFill(setup)}
+                className="rounded-full border px-3 py-1 text-xs font-semibold text-white shadow-sm transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                style={{ backgroundColor: colorToRgba(setup.color), borderColor: setup.color }}
+              >
+                {setup.title}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -170,7 +220,7 @@ export function TransactionModal({ isOpen, onClose, onSubmit, enterLabel, title 
 
         <div className={cn("flex gap-2 pt-4", isLoading && "pointer-events-none opacity-80")}>
           <Button type="button" variant="outline" onClick={onClose} className="flex-1 bg-transparent">{t("modal.cancel")}</Button>
-          <Button type="submit" className="flex-1">{enterLabel || t("modal.confirm")}</Button>
+          <Button ref={submitButtonRef} type="submit" className="flex-1">{enterLabel || t("modal.confirm")}</Button>
         </div>
       </form>
     </Modal>

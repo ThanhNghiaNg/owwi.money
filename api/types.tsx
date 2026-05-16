@@ -87,6 +87,35 @@ export type CategoryResponse = {
     usedTime?: number;
 }
 
+export type QuickTransactionSetupResponse = {
+    _id: string;
+    title: string;
+    color: string;
+    type: { _id: string; name: string };
+    category: { _id: string; name: string };
+    partner: { _id: string; name: string };
+    createdByProfile?: {
+        _id: string;
+        name: string;
+        avatarUrl?: string;
+        color?: string;
+    };
+    amount: number;
+    description?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export type QuickTransactionSetupFormData = {
+    title: string;
+    color: string;
+    type: string;
+    category: string;
+    partner: string;
+    amount: string | number;
+    description?: string;
+}
+
 export type SixJarConfigItem = {
     id: string;
     name: string;
