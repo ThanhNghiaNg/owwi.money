@@ -80,7 +80,7 @@ export default function QuickSetupPage() {
                     <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("transactions.amount")}</th>
                     <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("transactions.type")}</th>
                     <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("transactions.category")}</th>
-                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("transactions.partner")}</th>
+                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white truncate">{t("transactions.partner")}</th>
                     <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("table.description")}</th>
                     <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("table.actions")}</th>
                   </tr>
