@@ -74,23 +74,23 @@ export default function QuickSetupPage() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200 dark:border-gray-700">
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("table.no")}</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("quickSetup.titleField")}</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("quickSetup.preview")}</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("transactions.amount")}</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("transactions.type")}</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("transactions.category")}</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("transactions.partner")}</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("table.description")}</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-900 dark:text-white">{t("table.actions")}</th>
+                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("table.no")}</th>
+                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("quickSetup.titleField")}</th>
+                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("quickSetup.preview")}</th>
+                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("transactions.amount")}</th>
+                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("transactions.type")}</th>
+                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("transactions.category")}</th>
+                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("transactions.partner")}</th>
+                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("table.description")}</th>
+                    <th className="text-left px-3 py-2 sm:py-3 sm:px-4 font-medium text-gray-900 dark:text-white">{t("table.actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {setups.map((setup, index) => (
                     <tr key={setup._id} className="border-b border-gray-100 dark:border-gray-800 text-gray-900 dark:text-white">
-                      <td className="py-3 px-4">{index + 1}</td>
-                      <td className="py-3 px-4 font-medium">{setup.title}</td>
-                      <td className="py-3 px-4">
+                      <td className="px-3 py-2 sm:py-3 sm:px-4 truncate">{index + 1}</td>
+                      <td className="px-3 py-2 sm:py-3 sm:px-4 truncate font-medium">{setup.title}</td>
+                      <td className="px-3 py-2 sm:py-3 sm:px-4 truncate">
                         <span
                           className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium text-white"
                           style={{ backgroundColor: colorToRgba(setup.color), borderColor: setup.color }}
@@ -98,12 +98,12 @@ export default function QuickSetupPage() {
                           {setup.title}
                         </span>
                       </td>
-                      <td className="py-3 px-4">{setup.amount.toLocaleString()}đ</td>
-                      <td className="py-3 px-4">{setup.type?.name}</td>
-                      <td className="py-3 px-4">{setup.category?.name}</td>
-                      <td className="py-3 px-4">{setup.partner?.name}</td>
-                      <td className="py-3 px-4">{setup.description}</td>
-                      <td className="py-3 px-4">
+                      <td className="px-3 py-2 sm:py-3 sm:px-4 truncate">{setup.amount.toLocaleString()}đ</td>
+                      <td className="px-3 py-2 sm:py-3 sm:px-4 truncate">{setup.type?.name}</td>
+                      <td className="px-3 py-2 sm:py-3 sm:px-4 truncate">{setup.category?.name}</td>
+                      <td className="px-3 py-2 sm:py-3 sm:px-4 truncate">{setup.partner?.name}</td>
+                      <td className="px-3 py-2 sm:py-3 sm:px-4 truncate">{setup.description}</td>
+                      <td className="px-3 py-2 sm:py-3 sm:px-4 truncate">
                         <div className="flex space-x-2">
                           <Button variant="ghost" size="sm" onClick={() => openEditModal(setup)} title={t("transactions.edit")}>
                             <span className="text-blue-600"><Pencil size={18} /></span>
@@ -117,7 +117,7 @@ export default function QuickSetupPage() {
                   ))}
                   {!setups.length && (
                     <tr>
-                      <td colSpan={9} className="py-8 text-center text-gray-500 dark:text-gray-400">{t("quickSetup.empty")}</td>
+                      <td colSpan={9} className="px-3 py-8 sm:px-4 text-center text-gray-500 dark:text-gray-400">{t("quickSetup.empty")}</td>
                     </tr>
                   )}
                 </tbody>
