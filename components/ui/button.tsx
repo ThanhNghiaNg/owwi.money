@@ -1,5 +1,5 @@
 import type React from "react"
-import { memo } from "react"
+import { forwardRef, memo } from "react"
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "default" | "outline" | "ghost"
@@ -7,7 +7,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode
 }
 
-export const Button = memo(({ variant = "default", size = "md", className = "", children, ...props }: ButtonProps) =>{
+export const Button = memo(forwardRef<HTMLButtonElement, ButtonProps>(function Button({ variant = "default", size = "md", className = "", children, ...props }, ref) {
   const baseClasses =
     "inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
 
@@ -25,8 +25,10 @@ export const Button = memo(({ variant = "default", size = "md", className = "", 
   }
 
   return (
-    <button className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`} {...props}>
+    <button ref={ref} className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`} {...props}>
       {children}
     </button>
   )
-})
+}))
+
+Button.displayName = "Button"
