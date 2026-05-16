@@ -7,6 +7,7 @@ import { createPartner, deletePartner, updatePartner } from "./partners";
 import { createCategory, deleteCategory, updateCategory } from "./category";
 import { createProfile, deleteProfile, selectProfile, updateProfile } from "./profile";
 import { updateSixJarsConfig } from "./six-jars";
+import { createQuickTransactionSetup, deleteQuickTransactionSetup, updateQuickTransactionSetup } from "./quick-transaction-setup";
 
 const clearTransactionStatisticCaches = async () => {
   if (typeof window === "undefined" || !("caches" in window)) {
@@ -78,6 +79,12 @@ export const MutationKey = {
   sixJars: {
     mutation: ["six-jars-mutation"],
     updateConfig: () => [...MutationKey.sixJars.mutation, "update-config"],
+  },
+  quickTransactionSetup: {
+    mutation: ["quick-transaction-setup-mutation"],
+    create: () => [...MutationKey.quickTransactionSetup.mutation, "create"],
+    update: () => [...MutationKey.quickTransactionSetup.mutation, "update"],
+    delete: () => [...MutationKey.quickTransactionSetup.mutation, "delete"],
   },
 };
 
@@ -222,6 +229,23 @@ export const mutation = {
         queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() });
         queryClient.invalidateQueries({ queryKey: queryKeys.transactions() });
       }
+    }),
+  },
+  quickTransactionSetup: {
+    create: () => useMutation({
+      mutationKey: MutationKey.quickTransactionSetup.create(),
+      mutationFn: createQuickTransactionSetup,
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.quickTransactionSetups() })
+    }),
+    update: () => useMutation({
+      mutationKey: MutationKey.quickTransactionSetup.update(),
+      mutationFn: updateQuickTransactionSetup,
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.quickTransactionSetups() })
+    }),
+    delete: () => useMutation({
+      mutationKey: MutationKey.quickTransactionSetup.delete(),
+      mutationFn: deleteQuickTransactionSetup,
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.quickTransactionSetups() })
     }),
   },
   sixJars: {

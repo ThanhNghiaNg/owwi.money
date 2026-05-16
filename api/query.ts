@@ -10,6 +10,7 @@ import { TableResponse } from "./types";
 import { ViewScope } from "@/contexts/profile-context";
 import { createSnapshotKey, readSnapshot, writeSnapshot } from "@/lib/query-snapshot";
 import { getSixJarsConfig, getSixJarsMonthStatistic } from "./six-jars";
+import { getQuickTransactionSetups } from "./quick-transaction-setup";
 
 export const keys = {
     all: ['all'],
@@ -29,6 +30,7 @@ export const keys = {
     activeProfile: () => [...keys.all, 'profiles', 'active'],
     sixJarsConfig: (month: number, year: number) => [...keys.all, 'six-jars', 'config', month, year],
     sixJarsMonthStatistic: (month: number, year: number) => [...keys.all, 'six-jars', 'statistic', 'month', month, year],
+    quickTransactionSetups: () => [...keys.all, 'quick-transaction-setups'],
 };
 
 const snapshotKeys = {
@@ -91,6 +93,12 @@ export const query = {
         active: () => queryOptions({
             queryKey: keys.activeProfile(),
             queryFn: getActiveProfile,
+        }),
+    },
+    quickTransactionSetup: {
+        getAll: () => queryOptions({
+            queryKey: keys.quickTransactionSetups(),
+            queryFn: getQuickTransactionSetups,
         }),
     },
     sixJars: {
