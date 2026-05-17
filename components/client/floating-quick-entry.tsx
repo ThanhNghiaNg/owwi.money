@@ -1,7 +1,6 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { AddTransactionModal } from '@/components/modals/add-transaction-modal';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 type Position = {
@@ -17,7 +16,6 @@ const STORAGE_KEY = 'owwi.newui:floating-quick-entry-position';
 export function FloatingQuickEntry() {
   const [isOpen, setIsOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [draft, setDraft] = useState('');
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const bubbleRef = useRef<HTMLButtonElement | null>(null);
   const dragStateRef = useRef({
@@ -136,45 +134,10 @@ export function FloatingQuickEntry() {
 
   const bubbleStyle = useMemo(() => ({ left: `${position.x}px`, top: `${position.y}px` }), [position.x, position.y]);
 
-  if (isOpen) {
-    return (
-      <div className="fixed inset-0 z-[70] flex items-center justify-center px-4">
-        <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" onClick={() => setIsOpen(false)} />
-        <div className="relative z-[71] w-full max-w-md rounded-3xl border border-white/30 bg-white/75 p-5 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/80">
-          <button
-            type="button"
-            onClick={() => setIsOpen(false)}
-            className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-black/5 text-slate-500 transition hover:bg-black/10 hover:text-slate-700 dark:bg-white/10 dark:text-slate-300 dark:hover:bg-white/20"
-          >
-            <span className="text-lg leading-none">×</span>
-          </button>
-
-          <div className="pr-10">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Nhập giao dịch</h2>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-              Nhập nhanh giao dịch của bạn với AI thông minh.
-            </p>
-          </div>
-
-          <div className="mt-5 space-y-4">
-            <Textarea
-              value={draft}
-              onChange={(event) => setDraft(event.target.value)}
-              placeholder="Ăn trưa 30k"
-              rows={5}
-              className="rounded-2xl border-white/40 bg-white/70 backdrop-blur dark:bg-slate-800/70"
-            />
-            <Button type="button" className="w-full rounded-2xl" onClick={() => setIsOpen(false)}>
-              Xác nhận
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <button
+    <>
+      <AddTransactionModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <button
       ref={bubbleRef}
       type="button"
       aria-label="Mở nhập giao dịch nhanh"
@@ -195,6 +158,7 @@ export function FloatingQuickEntry() {
       }}
     >
       <span className="pointer-events-none select-none text-3xl font-light leading-none">+</span>
-    </button>
+      </button>
+    </>
   );
 }
