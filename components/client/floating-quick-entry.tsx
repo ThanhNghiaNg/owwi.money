@@ -137,28 +137,30 @@ export function FloatingQuickEntry() {
   return (
     <>
       <AddTransactionModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
-      <button
-      ref={bubbleRef}
-      type="button"
-      aria-label="Mở nhập giao dịch nhanh"
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={finishPointer}
-      onPointerCancel={finishPointer}
-      className="fixed z-[60] flex touch-none select-none items-center justify-center rounded-full border border-white/35 bg-white/20 text-slate-800 shadow-xl backdrop-blur-xl transition duration-150 dark:border-white/10 dark:bg-slate-800/30 dark:text-white"
-      style={{
-        ...bubbleStyle,
-        width: `${FLOATING_SIZE}px`,
-        height: `${FLOATING_SIZE}px`,
-        opacity: isDragging ? 0.98 : 0.82,
-        transform: isDragging ? 'scale(1.1)' : 'scale(1)',
-        WebkitUserSelect: 'none',
-        userSelect: 'none',
-        WebkitTouchCallout: 'none',
-      }}
-    >
-      <span className="pointer-events-none select-none text-3xl font-light leading-none">+</span>
-      </button>
+      {!isOpen && (
+        <button
+          ref={bubbleRef}
+          type="button"
+          aria-label="Mở nhập giao dịch nhanh"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={finishPointer}
+          onPointerCancel={finishPointer}
+          className="fixed z-[60] flex touch-none select-none items-center justify-center rounded-full border border-white/35 bg-white/20 text-slate-800 shadow-xl backdrop-blur-xl transition duration-150 dark:border-white/10 dark:bg-slate-800/30 dark:text-white"
+          style={{
+            ...bubbleStyle,
+            width: `${FLOATING_SIZE}px`,
+            height: `${FLOATING_SIZE}px`,
+            opacity: isDragging ? 0.98 : 0.82,
+            transform: isDragging ? 'scale(1.1)' : 'scale(1)',
+            WebkitUserSelect: 'none',
+            userSelect: 'none',
+            WebkitTouchCallout: 'none',
+          }}
+        >
+          <span className="pointer-events-none select-none text-3xl font-light leading-none">+</span>
+        </button>
+      )}
     </>
   );
 }
