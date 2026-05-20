@@ -1,6 +1,9 @@
 'use client';
 
+import { query } from '@/api/query';
 import { AddTransactionModal } from '@/components/modals/add-transaction-modal';
+import { useQuery } from '@tanstack/react-query';
+import { usePathname } from 'next/navigation';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 type Position = {
@@ -12,8 +15,18 @@ const FLOATING_SIZE = 56;
 const MARGIN = 16;
 const DRAG_THRESHOLD = 6;
 const STORAGE_KEY = 'owwi.newui:floating-quick-entry-position';
+const AUTHORIZED_PATH_PREFIXES = [
+  '/dashboard',
+  '/transactions',
+  '/quick-setup',
+  '/partners',
+  '/categories',
+  '/six-jars',
+];
 
 export function FloatingQuickEntry() {
+  const pathname = usePathname();
+  const { data: auth, isFetching } = useQuery(query.user.whoami());
   const [isOpen, setIsOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
@@ -133,6 +146,14 @@ export function FloatingQuickEntry() {
   }, [position, savePosition]);
 
   const bubbleStyle = useMemo(() => ({ left: `${position.x}px`, top: `${position.y}px` }), [position.x, position.y]);
+  const isAuthorizedPage = useMemo(
+    () => AUTHORIZED_PATH_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)),
+    [pathname],
+  );
+
+  if (isFetching || !auth?.isLoggedIn || auth.needsProfileSelection || !auth.activeProfileId || !isAuthorizedPage) {
+    return null;
+  }
 
   return (
     <>
