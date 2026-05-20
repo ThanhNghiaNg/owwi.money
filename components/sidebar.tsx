@@ -44,11 +44,10 @@ function getStableColor(name: string) {
 export function Sidebar() {
   const pathname = usePathname()
   const { theme, toggleTheme } = useTheme()
-  const { activeProfile } = useProfile()
+  const { activeProfile, activeProfileId } = useProfile()
   const { t, language, setLanguage, languages } = useLanguage()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const { data: res } = useQuery(query.user.whoami())
-  const isAuth = res?.isLoggedIn
+  const isAuth = !!activeProfileId
   const { mutateAsync: logout } = mutation.user.logout(
     () => {
       window.location.href = '/login'

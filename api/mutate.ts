@@ -100,7 +100,7 @@ export const mutation = {
         mutationFn: userLogin,
         onSuccess: () => {
           queryClient.invalidateQueries({
-            queryKey: [queryKeys.all, queryKeys.userWhoami()],
+            queryKey: queryKeys.userWhoami(),
           });
         }
       }),
@@ -130,13 +130,13 @@ export const mutation = {
       useMutation({
         mutationKey: MutationKey.user.googleLogin(),
         mutationFn: googleLogin,
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: [queryKeys.all, queryKeys.userWhoami()] })
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() })
       }),
     linkGoogle: () =>
       useMutation({
         mutationKey: MutationKey.user.linkGoogle(),
         mutationFn: linkGoogle,
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: [queryKeys.all, queryKeys.userWhoami()] })
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() })
       }),
   },
   transaction: {
