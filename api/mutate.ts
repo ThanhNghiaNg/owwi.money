@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { userLogin, userLogout, userRegister } from "./user";
+import { forgotPassword, resetPassword, userLogin, userLogout, userRegister } from "./user";
 import { createTransaction, deleteTransaction, updateTransaction } from "./transaction";
 import queryClient from "./queryClient";
 import { keys as queryKeys } from "./query";
@@ -50,6 +50,8 @@ export const MutationKey = {
     login: () => [...MutationKey.user.mutation, "login"],
     logout: () => [...MutationKey.user.mutation, "logout"],
     register: () => [...MutationKey.user.mutation, "register"],
+    forgotPassword: () => [...MutationKey.user.mutation, "forgot-password"],
+    resetPassword: () => [...MutationKey.user.mutation, "reset-password"],
   },
   transaction: {
     mutation: ["transaction-mutation"],
@@ -111,6 +113,16 @@ export const mutation = {
       useMutation({
         mutationKey: MutationKey.user.register(),
         mutationFn: userRegister,
+      }),
+    forgotPassword: () =>
+      useMutation({
+        mutationKey: MutationKey.user.forgotPassword(),
+        mutationFn: forgotPassword,
+      }),
+    resetPassword: () =>
+      useMutation({
+        mutationKey: MutationKey.user.resetPassword(),
+        mutationFn: resetPassword,
       }),
   },
   transaction: {

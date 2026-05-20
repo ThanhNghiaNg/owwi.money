@@ -28,6 +28,14 @@ export const userRegister = async (params: {username: string, password: string})
     return axiosInstance.post<any, UserRegisterResponse>(`/register`, params);
 }
 
+export const forgotPassword = async (params: {email: string}): Promise<{message: string}> => {
+    return axiosInstance.post<any, {message: string}>(`/forgot-password`, params);
+}
+
+export const resetPassword = async (params: {token: string, password: string}): Promise<{message: string}> => {
+    return axiosInstance.post<any, {message: string}>(`/reset-password`, params);
+}
+
 type WhoamiResponse = {
     isLoggedIn: boolean;
 } & Partial<AuthPayload>
