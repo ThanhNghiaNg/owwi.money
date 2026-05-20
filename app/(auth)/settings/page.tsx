@@ -8,12 +8,14 @@ import { Link2 } from "lucide-react"
 import { mutation } from "@/api/mutate"
 import { query } from "@/api/query"
 import GoogleSignInButton from "@/components/auth/google-sign-in-button"
+import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/contexts/language-context"
 
 export default function SettingsPage() {
   const { t } = useLanguage()
   const { data } = useQuery(query.user.whoami())
   const { mutateAsync: linkGoogle, isPending } = mutation.user.linkGoogle()
+  const { mutateAsync: unlinkGoogle, isPending: isUnlinking } = mutation.user.unlinkGoogle()
   const [errorMessage, setErrorMessage] = useState("")
 
   const handleCredential = async (credential: string) => {
@@ -24,6 +26,19 @@ export default function SettingsPage() {
     } catch (error) {
       const message = error instanceof AxiosError ? error.response?.data?.message : t("settings.googleLinkFailed")
       setErrorMessage(message || t("settings.googleLinkFailed"))
+    }
+  }
+
+  const handleUnlinkGoogle = async () => {
+    if (!window.confirm(t("settings.googleUnlinkConfirm"))) return
+
+    try {
+      setErrorMessage("")
+      const res = await unlinkGoogle()
+      toast.success(res.message)
+    } catch (error) {
+      const message = error instanceof AxiosError ? error.response?.data?.message : t("settings.googleUnlinkFailed")
+      setErrorMessage(message || t("settings.googleUnlinkFailed"))
     }
   }
 
@@ -46,8 +61,19 @@ export default function SettingsPage() {
             </div>
 
             {data?.user?.googleLinked ? (
-              <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-700 dark:border-green-900/50 dark:bg-green-950/30 dark:text-green-300">
-                {t("settings.googleLinked")} {data.user.googleEmail ? `(${data.user.googleEmail})` : ""}
+              <div className="space-y-3">
+                <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-700 dark:border-green-900/50 dark:bg-green-950/30 dark:text-green-300">
+                  {t("settings.googleLinked")} {data.user.googleEmail ? `(${data.user.googleEmail})` : ""}
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={isUnlinking}
+                  onClick={handleUnlinkGoogle}
+                  className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/30"
+                >
+                  {isUnlinking ? t("settings.googleUnlinking") : t("settings.unlinkGoogle")}
+                </Button>
               </div>
             ) : (
               <div className="max-w-sm">

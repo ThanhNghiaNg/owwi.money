@@ -32,6 +32,10 @@ export const linkGoogle = async (params: {credential: string}): Promise<{message
     return axiosInstance.post<any, {message: string} & AuthPayload>(`/google/link`, params);
 }
 
+export const unlinkGoogle = async (): Promise<{message: string} & AuthPayload> => {
+    return axiosInstance.post<any, {message: string} & AuthPayload>(`/google/unlink`);
+}
+
 export const userRegister = async (params: {username: string, password: string}): Promise<UserRegisterResponse> => {
     return axiosInstance.post<any, UserRegisterResponse>(`/register`, params);
 }
