@@ -118,14 +118,14 @@ export function Sidebar() {
         fixed lg:static inset-y-0 left-0 z-50 w-64 
         transform ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} 
         lg:translate-x-0 transition-transform duration-300 ease-in-out
-        flex h-screen flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 overflow-y-auto
+        flex h-screen flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 overflow-hidden
       `}
       >
         <div className="flex items-center gap-3 px-4 sm:px-6 py-4 sm:py-6 border-b border-gray-200 dark:border-gray-700">
           <span className="text-lg sm:text-xl font-bold text-sky-600 dark:text-sky-400">OwwiMoney</span>
         </div>
 
-        <nav className="flex-1 px-3 sm:px-4 py-4">
+        <nav className="min-h-0 flex-1 overflow-y-auto px-3 sm:px-4 py-4">
           <ul className="space-y-1 sm:space-y-2">
             {navigation.map((item) => {
               const isActive = pathname === item.href
@@ -188,7 +188,7 @@ export function Sidebar() {
           )}
         </nav>
 
-        <div className="px-3 sm:px-4 py-2 space-y-2">
+        <div className="shrink-0 px-3 sm:px-4 py-2 space-y-2">
           <div className="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2">
             <div className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
               <Languages className="h-4 w-4" />
@@ -215,7 +215,7 @@ export function Sidebar() {
           </button>
         </div>
 
-        {isAuth && <div className="px-3 sm:px-4 pb-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+        {isAuth && <div className="shrink-0 px-3 sm:px-4 pb-4 border-t border-gray-200 dark:border-gray-700 pt-4">
           <button
             className="w-full flex items-center justify-start gap-3 px-3 py-2.5 text-sm font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-900/20 rounded-lg transition-colors"
             onClick={() => logout()}
