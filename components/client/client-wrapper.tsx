@@ -16,7 +16,6 @@ function ClientWrapper({ children }: { children: React.ReactNode }): JSX.Element
   const [isSettingUp, setIsSettingUp] = React.useState(true);
 
   useEffect(() => {
-    setIsSettingUp(true);
     setupAxiosInterceptors(router, axiosInstance);
     setupAxiosInterceptors(router, axiosHomeInstance);
     console.debug('[owwi.newui] app version:', APP_VERSION);

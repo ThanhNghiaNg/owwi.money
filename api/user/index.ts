@@ -24,6 +24,18 @@ export const userLogout = async () => {
     return axiosInstance.post(`/logout`);
 }
 
+export const googleLogin = async (params: {credential: string}): Promise<UserLoginResponse> => {
+    return axiosInstance.post<UserLoginResponse, any>(`/google`, params);
+}
+
+export const linkGoogle = async (params: {credential: string}): Promise<{message: string} & AuthPayload> => {
+    return axiosInstance.post<any, {message: string} & AuthPayload>(`/google/link`, params);
+}
+
+export const unlinkGoogle = async (): Promise<{message: string} & AuthPayload> => {
+    return axiosInstance.post<any, {message: string} & AuthPayload>(`/google/unlink`);
+}
+
 export const userRegister = async (params: {username: string, password: string}): Promise<UserRegisterResponse> => {
     return axiosInstance.post<any, UserRegisterResponse>(`/register`, params);
 }

@@ -47,6 +47,11 @@ export const query = {
         whoami: () => queryOptions({
             queryKey: keys.userWhoami(),
             queryFn: whoami,
+            staleTime: FIVE_MINUTE_MILL,
+            gcTime: ONE_HOUR_MILL,
+            refetchOnMount: false,
+            refetchOnWindowFocus: false,
+            refetchOnReconnect: false,
         })
     },
     type: {

@@ -11,8 +11,9 @@ type AuthFormProps = {
     handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void
     isPending: boolean
     errorMessage?: string
+    googleButton?: React.ReactNode
 }
-const AuthForm = ({ handleSubmit, isPending, errorMessage }: AuthFormProps) => {
+const AuthForm = ({ handleSubmit, isPending, errorMessage, googleButton }: AuthFormProps) => {
     const pathname = usePathname()
     const isLogin = pathname === ROUTES.LOGIN
     const { t } = useLanguage()
@@ -60,6 +61,17 @@ const AuthForm = ({ handleSubmit, isPending, errorMessage }: AuthFormProps) => {
                                 />
                             </div>
                         </div>
+
+                        {isLogin && googleButton && (
+                            <div className="space-y-4">
+                                {googleButton}
+                                <div className="flex items-center gap-3">
+                                    <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">{t('auth.orSignInWithPassword')}</span>
+                                    <div className="h-px flex-1 bg-gray-200 dark:bg-gray-700" />
+                                </div>
+                            </div>
+                        )}
 
                         {errorMessage && (
                             <div className="mt-4 text-sm text-red-600 dark:text-red-400 text-center">

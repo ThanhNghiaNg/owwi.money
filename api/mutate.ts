@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { forgotPassword, resetPassword, userLogin, userLogout, userRegister } from "./user";
+import { forgotPassword, googleLogin, linkGoogle, resetPassword, unlinkGoogle, userLogin, userLogout, userRegister } from "./user";
 import { createTransaction, deleteTransaction, updateTransaction } from "./transaction";
 import queryClient from "./queryClient";
 import { keys as queryKeys } from "./query";
@@ -52,6 +52,9 @@ export const MutationKey = {
     register: () => [...MutationKey.user.mutation, "register"],
     forgotPassword: () => [...MutationKey.user.mutation, "forgot-password"],
     resetPassword: () => [...MutationKey.user.mutation, "reset-password"],
+    googleLogin: () => [...MutationKey.user.mutation, "google-login"],
+    linkGoogle: () => [...MutationKey.user.mutation, "link-google"],
+    unlinkGoogle: () => [...MutationKey.user.mutation, "unlink-google"],
   },
   transaction: {
     mutation: ["transaction-mutation"],
@@ -98,7 +101,7 @@ export const mutation = {
         mutationFn: userLogin,
         onSuccess: () => {
           queryClient.invalidateQueries({
-            queryKey: [queryKeys.all, queryKeys.userWhoami()],
+            queryKey: queryKeys.userWhoami(),
           });
         }
       }),
@@ -123,6 +126,24 @@ export const mutation = {
       useMutation({
         mutationKey: MutationKey.user.resetPassword(),
         mutationFn: resetPassword,
+      }),
+    googleLogin: () =>
+      useMutation({
+        mutationKey: MutationKey.user.googleLogin(),
+        mutationFn: googleLogin,
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() })
+      }),
+    linkGoogle: () =>
+      useMutation({
+        mutationKey: MutationKey.user.linkGoogle(),
+        mutationFn: linkGoogle,
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() })
+      }),
+    unlinkGoogle: () =>
+      useMutation({
+        mutationKey: MutationKey.user.unlinkGoogle(),
+        mutationFn: unlinkGoogle,
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() })
       }),
   },
   transaction: {

@@ -11,6 +11,7 @@ import { ROUTES } from "@/utils/constants/routes"
 import { SESSION_ID } from "@/utils/constants/keys"
 import { Languages, Moon, Sun } from "lucide-react"
 import AuthForm from "@/components/form/auth"
+import GoogleSignInButton from "@/components/auth/google-sign-in-button"
 import toast from "react-hot-toast"
 import { ERROR_MESSAGE } from "@/utils/constants/message"
 import { AxiosError } from "axios"
@@ -23,6 +24,7 @@ function LoginPage() {
     const { language, setLanguage, languages, t } = useLanguage()
 
     const { mutateAsync: login, isPending } = mutation.user.login()
+    const { mutateAsync: loginGoogle, isPending: isGooglePending } = mutation.user.googleLogin()
     const [errorMessage, setErrorMessage] = useState<string>();
 
     useEffect(() => {
@@ -59,6 +61,23 @@ function LoginPage() {
         }
     }
 
+    const handleGoogleCredential = async (credential: string) => {
+        try {
+            setErrorMessage("")
+            const res = await loginGoogle({ credential })
+            if (res.sessionToken) {
+                localStorage.setItem(SESSION_ID, res.sessionToken)
+                router.push(ROUTES.PROFILES_SELECT)
+            }
+        } catch (error) {
+            if (error instanceof AxiosError) {
+                setErrorMessage(error.response?.data?.message)
+            }
+            toast.error(t(ERROR_MESSAGE.SYSTEM_ERROR))
+            console.error(error)
+        }
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-sky-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
             <div className="fixed top-4 left-4 z-10 rounded-xl border border-gray-200 bg-white/90 px-3 py-2 shadow-lg dark:border-gray-700 dark:bg-gray-800/90">
@@ -84,7 +103,7 @@ function LoginPage() {
                 <span className="text-xl">{theme === "light" ? <Moon /> : <Sun />}</span>
             </button>
 
-            <AuthForm handleSubmit={handleSubmit} isPending={isPending} errorMessage={errorMessage} />
+            <AuthForm handleSubmit={handleSubmit} isPending={isPending} errorMessage={errorMessage} googleButton={<GoogleSignInButton onCredential={handleGoogleCredential} disabled={isGooglePending} />} />
         </div>
     )
 }

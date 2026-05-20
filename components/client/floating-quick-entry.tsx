@@ -22,6 +22,7 @@ const AUTHORIZED_PATH_PREFIXES = [
   '/partners',
   '/categories',
   '/six-jars',
+  '/settings',
 ];
 
 export function FloatingQuickEntry() {
