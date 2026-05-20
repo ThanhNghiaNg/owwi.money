@@ -90,7 +90,7 @@ const AuthForm = ({ handleSubmit, isPending, errorMessage }: AuthFormProps) => {
                             <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400">
                                 <p>
                                     <Link href="/forgot-password" className="text-sky-600 hover:text-sky-700 dark:text-sky-400 dark:hover:text-sky-300 font-medium transition-colors">
-                                        Forgot password?
+                                        {t('auth.forgotPassword')}
                                     </Link>
                                 </p>
                                 <p>
