@@ -7,7 +7,7 @@ import { useTheme } from "@/contexts/theme-context"
 import { useProfile } from "@/contexts/profile-context"
 import { useLanguage } from "@/contexts/language-context"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { BookUser, ChartNoAxesCombined, Languages, LogOut, Menu, Moon, NotebookPen, Scale, Sun, Tag, UserCircle2, Wand2 } from "lucide-react"
+import { BookUser, ChartNoAxesCombined, Languages, LogOut, Menu, Moon, NotebookPen, Scale, Settings, Sun, Tag, UserCircle2, Wand2 } from "lucide-react"
 import { mutation } from "@/api/mutate"
 import { SESSION_ID } from "@/utils/constants/keys"
 import { useQuery } from "@tanstack/react-query"
@@ -66,6 +66,7 @@ export function Sidebar() {
     { name: t("nav.partners"), href: "/partners", icon: <BookUser /> },
     { name: t("nav.categories"), href: "/categories", icon: <Tag /> },
     { name: t("nav.sixJars"), href: "/six-jars", icon: <Scale /> },
+    { name: t("nav.settings"), href: ROUTES.SETTINGS, icon: <Settings /> },
   ]
 
   const mobileNavigation = [
