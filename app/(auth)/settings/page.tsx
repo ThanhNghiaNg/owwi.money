@@ -1,15 +1,18 @@
 "use client"
 
 import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import toast from "react-hot-toast"
 import { Link2 } from "lucide-react"
 import { mutation } from "@/api/mutate"
+import { query } from "@/api/query"
 import GoogleSignInButton from "@/components/auth/google-sign-in-button"
 import { useLanguage } from "@/contexts/language-context"
 
 export default function SettingsPage() {
   const { t } = useLanguage()
+  const { data } = useQuery(query.user.whoami())
   const { mutateAsync: linkGoogle, isPending } = mutation.user.linkGoogle()
   const [errorMessage, setErrorMessage] = useState("")
 
@@ -42,9 +45,15 @@ export default function SettingsPage() {
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{t("settings.googleDescription")}</p>
             </div>
 
-            <div className="max-w-sm">
-              <GoogleSignInButton onCredential={handleCredential} disabled={isPending} label={t("settings.linkGoogle")} />
-            </div>
+            {data?.user?.googleLinked ? (
+              <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-700 dark:border-green-900/50 dark:bg-green-950/30 dark:text-green-300">
+                {t("settings.googleLinked")} {data.user.googleEmail ? `(${data.user.googleEmail})` : ""}
+              </div>
+            ) : (
+              <div className="max-w-sm">
+                <GoogleSignInButton onCredential={handleCredential} disabled={isPending} label={t("settings.linkGoogle")} />
+              </div>
+            )}
 
             {errorMessage && <p className="text-sm text-red-600 dark:text-red-400">{errorMessage}</p>}
           </div>
