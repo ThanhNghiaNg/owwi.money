@@ -43,6 +43,7 @@ function getStableColor(name: string) {
 
 export function Sidebar() {
   const pathname = usePathname()
+  const isMarketingPage = pathname === "/"
   const { theme, toggleTheme } = useTheme()
   const { activeProfile, activeProfileId } = useProfile()
   const { t, language, setLanguage, languages } = useLanguage()
@@ -78,6 +79,10 @@ export function Sidebar() {
     if (!activeProfile?.name) return PROFILE_COLORS[0]
     return activeProfile.color || getStableColor(activeProfile.name)
   }, [activeProfile])
+
+  if (isMarketingPage) {
+    return null
+  }
 
   return (
     <>
