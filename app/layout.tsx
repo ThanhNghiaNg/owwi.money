@@ -11,7 +11,7 @@ import ClientWrapper from "@/components/client/client-wrapper"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "OwwiMoney",
+  title: "Owwi Money",
   description: "Multi-profile personal finance manager",
   manifest: "/manifest.json",
   icons: {

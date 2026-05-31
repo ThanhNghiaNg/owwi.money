@@ -23,7 +23,7 @@ const AuthForm = ({ handleSubmit, isPending, errorMessage, googleButton }: AuthF
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
                 <div className="bg-gradient-to-r from-sky-600 to-blue-600 px-8 py-12 text-center">
                     <div className="flex items-center justify-center gap-3 mb-4">
-                        <h1 className="text-2xl font-bold text-white">OwwiMoney</h1>
+                        <h1 className="text-2xl font-bold text-white">Owwi Money</h1>
                     </div>
                     <p className="text-sky-100 text-sm">{isLogin ? t('auth.welcomeBack') : t('auth.createAccount')}</p>
                 </div>

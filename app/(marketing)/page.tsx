@@ -5,9 +5,9 @@ import { ArrowRight, BarChart3, CheckCircle2, Clock3, Globe2, MonitorSmartphone,
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://owwimoney.com"
 
 export const metadata: Metadata = {
-  title: "OwwiMoney - Ứng dụng web quản lý tài chính cá nhân nhanh gọn",
+  title: "Owwi Money - Ứng dụng web quản lý tài chính cá nhân nhanh gọn",
   description:
-    "OwwiMoney là ứng dụng web quản lý tài chính cá nhân giúp ghi lại thu nhập, chi tiêu chưa đến 3 giây. Nhanh gọn, tiện lợi, đa nền tảng trên web, Android, iOS và PC.",
+    "Owwi Money là ứng dụng web quản lý tài chính cá nhân giúp ghi lại thu nhập, chi tiêu chưa đến 3 giây. Nhanh gọn, tiện lợi, đa nền tảng trên web, Android, iOS và PC.",
   keywords: [
     "ứng dụng web quản lý tài chính cá nhân",
     "ứng dụng quản lý tài chính",
@@ -17,20 +17,20 @@ export const metadata: Metadata = {
     "quản lý tiền cá nhân",
     "ứng dụng tài chính đa nền tảng",
     "web quản lý chi tiêu",
-    "OwwiMoney",
+    "Owwi Money",
   ],
   alternates: { canonical: siteUrl },
   openGraph: {
-    title: "OwwiMoney - Quản lý tài chính cá nhân chưa đến 3 giây",
+    title: "Owwi Money - Quản lý tài chính cá nhân chưa đến 3 giây",
     description: "Ghi thu nhập, chi tiêu nhanh gọn. Theo dõi tài chính mọi lúc trên web, Android, iOS và PC.",
     url: siteUrl,
-    siteName: "OwwiMoney",
+    siteName: "Owwi Money",
     locale: "vi_VN",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "OwwiMoney - Ứng dụng quản lý tài chính cá nhân",
+    title: "Owwi Money - Ứng dụng quản lý tài chính cá nhân",
     description: "Ghi thu nhập, chi tiêu chưa đến 3 giây. Nhanh gọn, tiện lợi, đa nền tảng.",
   },
 }
@@ -45,24 +45,24 @@ const features = [
 ]
 
 const steps = [
-  "Tạo tài khoản OwwiMoney miễn phí",
+  "Tạo tài khoản Owwi Money miễn phí",
   "Chọn profile tài chính muốn theo dõi",
   "Ghi thu nhập hoặc chi tiêu trong vài giây",
   "Xem báo cáo để điều chỉnh thói quen dùng tiền",
 ]
 
 const faqs = [
-  { question: "OwwiMoney có phải ứng dụng quản lý tài chính cá nhân không?", answer: "Có. OwwiMoney tập trung vào ghi chép thu nhập, chi tiêu, phân loại danh mục và theo dõi dòng tiền cá nhân một cách nhanh gọn." },
-  { question: "Có dùng được trên điện thoại không?", answer: "Có. OwwiMoney chạy trên web và có thể cài như PWA, phù hợp để dùng trên Android, iOS, PC và tablet." },
+  { question: "Owwi Money có phải ứng dụng quản lý tài chính cá nhân không?", answer: "Có. Owwi Money tập trung vào ghi chép thu nhập, chi tiêu, phân loại danh mục và theo dõi dòng tiền cá nhân một cách nhanh gọn." },
+  { question: "Có dùng được trên điện thoại không?", answer: "Có. Owwi Money chạy trên web và có thể cài như PWA, phù hợp để dùng trên Android, iOS, PC và tablet." },
   { question: "Ghi chi tiêu có nhanh không?", answer: "Có. Luồng nhập được tối ưu để ghi lại thu nhập hoặc chi tiêu thường ngày trong vài giây." },
-  { question: "OwwiMoney phù hợp với ai?", answer: "Phù hợp với người muốn kiểm soát tiền cá nhân, theo dõi chi tiêu gia đình, freelancer hoặc người cần ghi dòng tiền nhanh mỗi ngày." },
+  { question: "Owwi Money phù hợp với ai?", answer: "Phù hợp với người muốn kiểm soát tiền cá nhân, theo dõi chi tiêu gia đình, freelancer hoặc người cần ghi dòng tiền nhanh mỗi ngày." },
 ]
 
 export default function HomePage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: "OwwiMoney",
+    name: "Owwi Money",
     applicationCategory: "FinanceApplication",
     operatingSystem: "Web, Android, iOS, Windows, macOS",
     description: "Ứng dụng web quản lý tài chính cá nhân giúp ghi thu nhập, chi tiêu nhanh gọn, tiện lợi và đa nền tảng.",
@@ -88,7 +88,7 @@ export default function HomePage() {
       <section className="relative overflow-hidden bg-gradient-to-br from-sky-50 via-white to-blue-50 px-3 py-4 dark:from-slate-950 dark:via-slate-900 dark:to-sky-950 sm:px-6 lg:px-8">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,0.18),transparent_35%),radial-gradient(circle_at_bottom_left,rgba(37,99,235,0.14),transparent_35%)]" />
         <div className="relative mx-auto flex max-w-7xl items-center justify-between gap-2">
-          <Link href="/" className="text-lg font-bold sm:text-xl text-sky-600 dark:text-sky-400" aria-label="OwwiMoney trang chủ">OwwiMoney</Link>
+          <Link href="/" className="text-lg font-bold sm:text-xl text-sky-600 dark:text-sky-400" aria-label="Owwi Money trang chủ">Owwi Money</Link>
           <nav className="flex items-center gap-1 text-xs font-medium min-[360px]:gap-2 sm:gap-3 sm:text-sm">
             <Link href="/login" className="rounded-full px-2.5 py-2 min-[360px]:px-3 sm:px-4 text-slate-700 hover:bg-white/70 dark:text-slate-200 dark:hover:bg-white/10">Đăng nhập</Link>
             <Link href="/register" className="rounded-full bg-slate-950 px-3 py-2.5 min-[360px]:px-4 sm:px-5 text-white shadow-lg hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200">Dùng thử</Link>
@@ -102,7 +102,7 @@ export default function HomePage() {
               <span className="truncate">Ứng dụng web quản lý tài chính cá nhân</span>
             </div>
             <h1 className="text-[2rem] font-extrabold leading-tight tracking-tight min-[360px]:text-4xl text-slate-950 dark:text-white sm:text-5xl lg:text-6xl">Quản lý tài chính cá nhân, ghi thu nhập chi tiêu chưa đến 3 giây</h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 sm:mt-6 sm:text-lg sm:leading-8 text-slate-600 dark:text-slate-300">OwwiMoney giúp bạn ghi lại thu nhập, chi tiêu, phân loại danh mục và theo dõi dòng tiền mỗi ngày. Nhanh gọn, tiện lợi, sử dụng ở bất kỳ đâu trên web, Android, iOS và PC.</p>
+            <p className="mt-4 max-w-2xl text-base leading-7 sm:mt-6 sm:text-lg sm:leading-8 text-slate-600 dark:text-slate-300">Owwi Money giúp bạn ghi lại thu nhập, chi tiêu, phân loại danh mục và theo dõi dòng tiền mỗi ngày. Nhanh gọn, tiện lợi, sử dụng ở bất kỳ đâu trên web, Android, iOS và PC.</p>
             <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row">
               <Link href="/register" className="inline-flex items-center justify-center rounded-2xl bg-sky-600 px-4 py-3.5 text-sm min-[360px]:px-5 sm:px-6 sm:py-4 sm:text-base font-semibold text-white shadow-xl shadow-sky-600/20 hover:bg-sky-700">Bắt đầu quản lý tiền ngay<ArrowRight className="ml-2 h-5 w-5" /></Link>
               <Link href="/login" className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-sm min-[360px]:px-5 sm:px-6 sm:py-4 sm:text-base font-semibold text-slate-800 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800">Tôi đã có tài khoản</Link>
@@ -134,7 +134,7 @@ export default function HomePage() {
       <section className="px-3 py-12 sm:px-6 sm:py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-4xl">Vì sao nên dùng OwwiMoney?</h2>
+            <h2 className="text-2xl font-bold tracking-tight sm:text-4xl">Vì sao nên dùng Owwi Money?</h2>
             <p className="mt-3 text-base leading-7 text-slate-600 sm:mt-4 sm:text-lg dark:text-slate-300">Một ứng dụng quản lý tài chính cá nhân tốt phải đủ nhanh để bạn muốn dùng mỗi ngày, và đủ rõ ràng để bạn hiểu tiền của mình.</p>
           </div>
           <div className="mt-8 grid gap-4 sm:mt-12 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -154,7 +154,7 @@ export default function HomePage() {
 
       <section className="bg-slate-50 px-3 py-12 sm:px-6 sm:py-16 dark:bg-slate-900/60 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl gap-8 sm:gap-10 lg:grid-cols-2">
-          <div><h2 className="text-2xl font-bold tracking-tight sm:text-4xl">Bắt đầu quản lý chi tiêu trong 4 bước</h2><p className="mt-3 text-base leading-7 sm:mt-4 sm:text-lg sm:leading-8 text-slate-600 dark:text-slate-300">Không cần bảng tính phức tạp. OwwiMoney giúp bạn ghi chép và xem tình hình tài chính cá nhân theo cách đơn giản hơn.</p></div>
+          <div><h2 className="text-2xl font-bold tracking-tight sm:text-4xl">Bắt đầu quản lý chi tiêu trong 4 bước</h2><p className="mt-3 text-base leading-7 sm:mt-4 sm:text-lg sm:leading-8 text-slate-600 dark:text-slate-300">Không cần bảng tính phức tạp. Owwi Money giúp bạn ghi chép và xem tình hình tài chính cá nhân theo cách đơn giản hơn.</p></div>
           <div className="space-y-4">
             {steps.map((step, index) => (
               <div key={step} className="flex gap-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-950"><div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full bg-sky-600 font-bold text-white">{index + 1}</div><p className="pt-1.5 text-sm font-medium sm:pt-2 sm:text-base text-slate-800 dark:text-slate-100">{step}</p></div>
@@ -178,7 +178,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-5xl rounded-[1.5rem] bg-gradient-to-r from-sky-600 to-blue-700 p-5 sm:rounded-[2rem] sm:p-8 text-center text-white shadow-2xl shadow-sky-700/20 sm:p-12">
           <h2 className="text-2xl font-bold tracking-tight sm:text-4xl">Sẵn sàng kiểm soát tiền cá nhân tốt hơn?</h2>
           <p className="mx-auto mt-3 max-w-2xl text-base leading-7 sm:mt-4 sm:text-lg text-sky-100">Tạo tài khoản và bắt đầu ghi lại thu nhập, chi tiêu ngay hôm nay. Nhanh gọn, tiện lợi, dùng được ở bất kỳ đâu.</p>
-          <Link href="/register" className="mt-6 inline-flex items-center justify-center rounded-2xl bg-white px-4 py-3.5 text-sm sm:mt-8 sm:px-6 sm:py-4 sm:text-base font-semibold text-sky-700 hover:bg-sky-50">Dùng OwwiMoney miễn phí<ArrowRight className="ml-2 h-5 w-5" /></Link>
+          <Link href="/register" className="mt-6 inline-flex items-center justify-center rounded-2xl bg-white px-4 py-3.5 text-sm sm:mt-8 sm:px-6 sm:py-4 sm:text-base font-semibold text-sky-700 hover:bg-sky-50">Dùng Owwi Money miễn phí<ArrowRight className="ml-2 h-5 w-5" /></Link>
         </div>
       </section>
     </main>

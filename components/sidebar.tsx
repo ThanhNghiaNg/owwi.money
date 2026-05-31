@@ -127,7 +127,7 @@ export function Sidebar() {
       `}
       >
         <div className="flex items-center gap-3 px-4 sm:px-6 py-4 sm:py-6 border-b border-gray-200 dark:border-gray-700">
-          <span className="text-lg sm:text-xl font-bold text-sky-600 dark:text-sky-400">OwwiMoney</span>
+          <span className="text-lg sm:text-xl font-bold text-sky-600 dark:text-sky-400">Owwi Money</span>
         </div>
 
         <nav className="min-h-0 flex-1 overflow-y-auto px-3 sm:px-4 py-4">
