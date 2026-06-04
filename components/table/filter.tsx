@@ -68,7 +68,7 @@ const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel
     }
 
     return (
-        <div className={cn('p-4 border border-gray-200 rounded-md', expand ? 'h-full' : 'h-14 overflow-hidden',)}>
+        <div className={cn('p-4 border border-gray-200 rounded-md', expand ? 'h-full' : 'min-h-14',)}>
             <h4 className='text-md font-semibold text-gray-900 dark:text-white mb-4 flex justify-between items-center cursor-pointer' onClick={() => setExpand(!expand)}>
                 <span>{t("transactions.search")}</span>
                 <span>{expand ? <FilterX size={18} /> : <Filter size={18} />}</span>
