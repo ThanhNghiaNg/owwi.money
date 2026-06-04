@@ -24,6 +24,9 @@ interface FilterCombobox extends BaseFilter {
 interface FilterNumber extends BaseFilter {
     type: "number";
 }
+interface FilterDate extends BaseFilter {
+    type: "date";
+}
 
 interface Props {
     filters: { [key: string]: string | number | boolean };
@@ -33,11 +36,12 @@ interface Props {
     enterLabel?: string;
     disableEnter?: boolean;
     resetLabel?: string;
+    defaultFilters?: { [key: string]: string | number | boolean };
 }
 
-export type FilterOption = FilterText | FilterCheckbox | FilterCombobox | FilterNumber;
+export type FilterOption = FilterText | FilterCheckbox | FilterCombobox | FilterNumber | FilterDate;
 
-const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel, disableEnter, resetLabel }: Props) => {
+const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel, disableEnter, resetLabel, defaultFilters }: Props) => {
     const [expand, setExpand] = React.useState<boolean>(false);
     const { t } = useLanguage();
 
@@ -60,7 +64,7 @@ const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel
     }
 
     const resetFilters = () => {
-        setFilters({});
+        setFilters(defaultFilters || {});
     }
 
     return (
@@ -102,10 +106,10 @@ const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel
                                         )}
                                     </div>
                                 )}
-                                {option.type === "number" && (
+                                {(option.type === "number" || option.type === "date") && (
                                     <div className='relative'>
                                         <Input
-                                            type="number"
+                                            type={option.type}
                                             name={fieldName}
                                             value={textValue}
                                             onChange={(e) => updateFieldValue(fieldName, e.target.value)}
