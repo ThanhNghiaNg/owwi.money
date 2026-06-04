@@ -5,8 +5,6 @@ import { Combobox } from '../ui/combobox';
 import { Input } from '../ui/input';
 import { CalendarIcon, Filter, FilterX, X } from 'lucide-react';
 import { useLanguage } from '@/contexts/language-context';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
-import { Calendar } from '../ui/calendar';
 
 interface BaseFilter {
     label: string;
@@ -88,11 +86,7 @@ const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel
         return `${day}/${month}/${year}`;
     }
 
-    const parseDateInput = (value?: string | number | boolean) => {
-        if (typeof value !== 'string' || !value) return undefined;
-        const date = new Date(value);
-        return Number.isNaN(date.getTime()) ? undefined : date;
-    }
+    const [openDateRange, setOpenDateRange] = React.useState<string>("");
 
     return (
         <div className={cn('p-4 border border-gray-200 rounded-md', expand ? 'h-full' : 'min-h-14',)}>
@@ -113,51 +107,44 @@ const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel
                                 <label className='text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>{option.label}</label>
 
                                 {option.type === "date-range" && (
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                className="justify-start gap-2 border border-gray-300 px-3 py-2 text-left font-normal min-w-[240px]"
-                                            >
-                                                <CalendarIcon size={16} />
-                                                <span>
-                                                    {filters[option.startName] && filters[option.endName]
-                                                        ? `${formatDateLabel(filters[option.startName])} - ${formatDateLabel(filters[option.endName])}`
-                                                        : option.placeholder || option.label}
-                                                </span>
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar
-                                                mode="range"
-                                                numberOfMonths={1}
-                                                selected={{
-                                                    from: parseDateInput(filters[option.startName]),
-                                                    to: parseDateInput(filters[option.endName]),
-                                                }}
-                                                onSelect={(range: any) => {
-                                                    setFilters((prev) => {
-                                                        const next = { ...prev };
-
-                                                        if (range?.from) {
-                                                            next[option.startName] = formatDateInput(range.from);
-                                                        } else {
-                                                            delete next[option.startName];
-                                                        }
-
-                                                        if (range?.to) {
-                                                            next[option.endName] = formatDateInput(range.to);
-                                                        } else {
-                                                            delete next[option.endName];
-                                                        }
-
-                                                        return next;
-                                                    });
-                                                }}
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
+                                    <div className="relative">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => setOpenDateRange(openDateRange === fieldName ? "" : fieldName)}
+                                            className="justify-start gap-2 border border-gray-300 px-3 py-2 text-left font-normal min-w-[260px]"
+                                        >
+                                            <CalendarIcon size={16} />
+                                            <span>
+                                                {filters[option.startName] && filters[option.endName]
+                                                    ? `${formatDateLabel(filters[option.startName])} - ${formatDateLabel(filters[option.endName])}`
+                                                    : option.placeholder || option.label}
+                                            </span>
+                                        </Button>
+                                        {openDateRange === fieldName && (
+                                            <div className="absolute left-0 top-full z-40 mt-2 w-[280px] rounded-md border border-gray-200 bg-white p-3 shadow-lg dark:border-gray-700 dark:bg-gray-900">
+                                                <div className="grid gap-3">
+                                                    <div>
+                                                        <label className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-300">{t("transactions.startDate")}</label>
+                                                        <Input
+                                                            type="date"
+                                                            value={typeof filters[option.startName] === 'string' ? String(filters[option.startName]) : ''}
+                                                            onChange={(e) => updateFieldValue(option.startName, e.target.value)}
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-300">{t("transactions.endDate")}</label>
+                                                        <Input
+                                                            type="date"
+                                                            value={typeof filters[option.endName] === 'string' ? String(filters[option.endName]) : ''}
+                                                            onChange={(e) => updateFieldValue(option.endName, e.target.value)}
+                                                        />
+                                                    </div>
+                                                    <Button type="button" onClick={() => setOpenDateRange("")} className="h-fit">{t("transactions.search")}</Button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 )}
                                 {option.type === "text" && (
                                     <div className='relative'>
