@@ -140,7 +140,6 @@ const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel
                                                             onChange={(e) => updateFieldValue(option.endName, e.target.value)}
                                                         />
                                                     </div>
-                                                    <Button type="button" onClick={() => setOpenDateRange("")} className="h-fit">{t("transactions.search")}</Button>
                                                 </div>
                                             </div>
                                         )}
