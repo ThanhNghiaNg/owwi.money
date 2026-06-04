@@ -48,6 +48,8 @@ export type FilterOption = FilterText | FilterCheckbox | FilterCombobox | Filter
 
 const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel, disableEnter, resetLabel, defaultFilters }: Props) => {
     const [expand, setExpand] = React.useState<boolean>(false);
+    const [openDateRange, setOpenDateRange] = React.useState<string>("");
+    const dateRangeRef = React.useRef<HTMLDivElement | null>(null);
     const { t } = useLanguage();
 
     const updateFieldValue = (fieldName: string, value: string | number | boolean) => {
@@ -86,7 +88,18 @@ const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel
         return `${day}/${month}/${year}`;
     }
 
-    const [openDateRange, setOpenDateRange] = React.useState<string>("");
+    React.useEffect(() => {
+        if (!openDateRange) return;
+
+        const handleClickOutside = (event: MouseEvent) => {
+            if (!dateRangeRef.current?.contains(event.target as Node)) {
+                setOpenDateRange("");
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [openDateRange]);
 
     return (
         <div className={cn('p-4 border border-gray-200 rounded-md', expand ? 'h-full' : 'min-h-14',)}>
@@ -107,7 +120,7 @@ const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel
                                 <label className='text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>{option.label}</label>
 
                                 {option.type === "date-range" && (
-                                    <div className="relative">
+                                    <div className="relative" ref={dateRangeRef}>
                                         <Button
                                             type="button"
                                             variant="outline"
