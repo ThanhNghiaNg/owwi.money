@@ -71,9 +71,6 @@ function TransactionsPage() {
 
   const filterOptions: FilterOption[] = useMemo(() => [
     {
-      label: t("transactions.dateRange"), type: "date-range", startName: "startDate", endName: "endDate"
-    },
-    {
       label: t("transactions.category"), name: "category", type: "combobox", options: categories.map(c => ({ value: c._id, label: c.name }))
     },
     {
@@ -84,6 +81,9 @@ function TransactionsPage() {
     },
     {
       label: t("transactions.description"), name: "description", type: "text"
+    },
+    {
+      label: t("transactions.dateRange"), type: "date-range", startName: "startDate", endName: "endDate"
     },
   ], [categories, partners, types, t])
 
