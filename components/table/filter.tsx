@@ -3,8 +3,10 @@ import React from 'react'
 import { Button } from '../ui/button';
 import { Combobox } from '../ui/combobox';
 import { Input } from '../ui/input';
-import { Filter, FilterX, X } from 'lucide-react';
+import { CalendarIcon, Filter, FilterX, X } from 'lucide-react';
 import { useLanguage } from '@/contexts/language-context';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Calendar } from '../ui/calendar';
 
 interface BaseFilter {
     label: string;
@@ -27,6 +29,11 @@ interface FilterNumber extends BaseFilter {
 interface FilterDate extends BaseFilter {
     type: "date";
 }
+interface FilterDateRange extends BaseFilter {
+    type: "date-range";
+    startName: string;
+    endName: string;
+}
 
 interface Props {
     filters: { [key: string]: string | number | boolean };
@@ -39,7 +46,7 @@ interface Props {
     defaultFilters?: { [key: string]: string | number | boolean };
 }
 
-export type FilterOption = FilterText | FilterCheckbox | FilterCombobox | FilterNumber | FilterDate;
+export type FilterOption = FilterText | FilterCheckbox | FilterCombobox | FilterNumber | FilterDate | FilterDateRange;
 
 const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel, disableEnter, resetLabel, defaultFilters }: Props) => {
     const [expand, setExpand] = React.useState<boolean>(false);
@@ -67,6 +74,26 @@ const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel
         setFilters(defaultFilters || {});
     }
 
+    const formatDateInput = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    const formatDateLabel = (value?: string | number | boolean) => {
+        if (typeof value !== 'string' || !value) return '';
+        const [year, month, day] = value.split('-');
+        if (!year || !month || !day) return value;
+        return `${day}/${month}/${year}`;
+    }
+
+    const parseDateInput = (value?: string | number | boolean) => {
+        if (typeof value !== 'string' || !value) return undefined;
+        const date = new Date(value);
+        return Number.isNaN(date.getTime()) ? undefined : date;
+    }
+
     return (
         <div className={cn('p-4 border border-gray-200 rounded-md', expand ? 'h-full' : 'min-h-14',)}>
             <h4 className='text-md font-semibold text-gray-900 dark:text-white mb-4 flex justify-between items-center cursor-pointer' onClick={() => setExpand(!expand)}>
@@ -76,14 +103,62 @@ const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel
             <form className={cn('space-y-2', className, disableEnter && "pointer-events-none opacity-50")} onSubmit={onSubmit} onReset={resetFilters}>
                 <div className='flex flex-wrap gap-2 items-end'>
                     {filterOptions?.map(option => {
-                        const fieldName = option.name || option.label;
-                        const fieldValue = filters[fieldName];
+                        const fieldName = option.type === 'date-range' ? `${option.startName}-${option.endName}` : option.name || option.label;
+                        const fieldValue = option.type === 'date-range' ? undefined : filters[fieldName];
                         const textValue = typeof fieldValue === 'string' || typeof fieldValue === 'number' ? String(fieldValue) : '';
                         const hasValue = fieldValue !== undefined && fieldValue !== null && fieldValue !== '' && fieldValue !== false;
 
                         return (
                             <div key={fieldName} className='flex flex-col'>
-                                <label className='text-sm font-medium text-gray-700 mb-1'>{option.label}</label>
+                                <label className='text-sm font-medium text-gray-700 dark:text-gray-300 mb-1'>{option.label}</label>
+
+                                {option.type === "date-range" && (
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                className="justify-start gap-2 border border-gray-300 px-3 py-2 text-left font-normal min-w-[240px]"
+                                            >
+                                                <CalendarIcon size={16} />
+                                                <span>
+                                                    {filters[option.startName] && filters[option.endName]
+                                                        ? `${formatDateLabel(filters[option.startName])} - ${formatDateLabel(filters[option.endName])}`
+                                                        : option.placeholder || option.label}
+                                                </span>
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                            <Calendar
+                                                mode="range"
+                                                numberOfMonths={1}
+                                                selected={{
+                                                    from: parseDateInput(filters[option.startName]),
+                                                    to: parseDateInput(filters[option.endName]),
+                                                }}
+                                                onSelect={(range: any) => {
+                                                    setFilters((prev) => {
+                                                        const next = { ...prev };
+
+                                                        if (range?.from) {
+                                                            next[option.startName] = formatDateInput(range.from);
+                                                        } else {
+                                                            delete next[option.startName];
+                                                        }
+
+                                                        if (range?.to) {
+                                                            next[option.endName] = formatDateInput(range.to);
+                                                        } else {
+                                                            delete next[option.endName];
+                                                        }
+
+                                                        return next;
+                                                    });
+                                                }}
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                )}
                                 {option.type === "text" && (
                                     <div className='relative'>
                                         <Input
