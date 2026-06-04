@@ -128,11 +128,12 @@ const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel
     }, [openDateRange]);
 
     return (
-        <div className={cn('p-4 border border-gray-200 rounded-md', expand ? 'h-full' : 'min-h-14',)}>
+        <div className='p-4 border border-gray-200 rounded-md'>
             <h4 className='text-md font-semibold text-gray-900 dark:text-white mb-4 flex justify-between items-center cursor-pointer' onClick={() => setExpand(!expand)}>
                 <span>{t("transactions.search")}</span>
                 <span>{expand ? <FilterX size={18} /> : <Filter size={18} />}</span>
             </h4>
+            {expand && (
             <form className={cn('space-y-2', className, disableEnter && "pointer-events-none opacity-50")} onSubmit={onSubmit} onReset={resetFilters}>
                 <div className='flex flex-wrap gap-2 items-end'>
                     {filterOptions?.map(option => {
@@ -256,6 +257,7 @@ const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel
                     <Button type="reset" className='h-fit' disabled={disableEnter}>{resetLabel || t("modal.cancel")}</Button>
                 </div>
             </form>
+            )}
         </div>
     )
 }
