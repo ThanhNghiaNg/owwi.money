@@ -22,8 +22,23 @@ import { useProfile } from "@/contexts/profile-context"
 import { useLanguage } from "@/contexts/language-context"
 import toast from "react-hot-toast"
 
+function formatInputDate(date: Date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const day = String(date.getDate()).padStart(2, "0")
+  return `${year}-${month}-${day}`
+}
+
+function getCurrentMonthDateRange() {
+  const now = new Date()
+  return {
+    startDate: formatInputDate(new Date(now.getFullYear(), now.getMonth(), 1)),
+    endDate: formatInputDate(new Date(now.getFullYear(), now.getMonth() + 1, 0)),
+  }
+}
+
 function TransactionsPage() {
-  const [filters, setFilters] = useState<{ [key: string]: string | number | boolean }>({})
+  const [filters, setFilters] = useState<{ [key: string]: string | number | boolean }>(() => getCurrentMonthDateRange())
   const { viewScope, activeProfileId, activeProfile } = useProfile()
   const { t } = useLanguage()
 
@@ -66,6 +81,9 @@ function TransactionsPage() {
     },
     {
       label: t("transactions.description"), name: "description", type: "text"
+    },
+    {
+      label: t("transactions.dateRange"), type: "date-range", startName: "startDate", endName: "endDate"
     },
   ], [categories, partners, types, t])
 
@@ -163,7 +181,7 @@ function TransactionsPage() {
           </CardHeader>
 
           <CardContent>
-            <TableFilter disableEnter={isFetchingFilters} className="relative mb-6" enterLabel={t("transactions.search")} filters={filters} setFilters={setFilters} filterOptions={filterOptions} />
+            <TableFilter disableEnter={isFetchingFilters} className="relative mb-6" enterLabel={t("transactions.search")} resetLabel={t("transactions.resetToThisMonth")} filters={filters} setFilters={setFilters} defaultFilters={getCurrentMonthDateRange()} filterOptions={filterOptions} />
 
             <div className="overflow-x-auto">
               <table className="w-full">
