@@ -66,6 +66,32 @@ const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel
         });
     }
 
+    const updateDateRangeValue = (startName: string, endName: string, fieldName: string, value: string) => {
+        setFilters((prev) => {
+            const next = { ...prev };
+
+            if (!value) {
+                delete next[fieldName];
+                return next;
+            }
+
+            next[fieldName] = value;
+
+            const startValue = String(next[startName] || '');
+            const endValue = String(next[endName] || '');
+
+            if (startValue && endValue && startValue > endValue) {
+                if (fieldName === startName) {
+                    next[endName] = startValue;
+                } else {
+                    next[startName] = endValue;
+                }
+            }
+
+            return next;
+        });
+    }
+
     const onSubmit = (e: React.FormEvent) => {
         e.preventDefault();
     }
@@ -142,7 +168,8 @@ const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel
                                                         <Input
                                                             type="date"
                                                             value={typeof filters[option.startName] === 'string' ? String(filters[option.startName]) : ''}
-                                                            onChange={(e) => updateFieldValue(option.startName, e.target.value)}
+                                                            max={typeof filters[option.endName] === 'string' ? String(filters[option.endName]) : undefined}
+                                                            onChange={(e) => updateDateRangeValue(option.startName, option.endName, option.startName, e.target.value)}
                                                         />
                                                     </div>
                                                     <div>
@@ -150,7 +177,8 @@ const TableFilter = ({ filters, setFilters, filterOptions, className, enterLabel
                                                         <Input
                                                             type="date"
                                                             value={typeof filters[option.endName] === 'string' ? String(filters[option.endName]) : ''}
-                                                            onChange={(e) => updateFieldValue(option.endName, e.target.value)}
+                                                            min={typeof filters[option.startName] === 'string' ? String(filters[option.startName]) : undefined}
+                                                            onChange={(e) => updateDateRangeValue(option.startName, option.endName, option.endName, e.target.value)}
                                                         />
                                                     </div>
                                                 </div>
