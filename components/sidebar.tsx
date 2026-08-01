@@ -79,6 +79,8 @@ export function Sidebar() {
     return activeProfile.color || getStableColor(activeProfile.name)
   }, [activeProfile])
 
+  if (pathname === ROUTES.HOME) return null
+
   return (
     <>
       <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">

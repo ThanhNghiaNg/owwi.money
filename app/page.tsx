@@ -1,4 +1,5 @@
-import type { Metadata } from "next"
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
 import {
@@ -19,33 +20,6 @@ import {
   Zap,
 } from "lucide-react"
 import styles from "./page.module.css"
-
-export const metadata: Metadata = {
-  title: "Owwi — Những công cụ nhỏ cho cuộc sống nhẹ hơn",
-  description:
-    "Khám phá Owwi Money và hệ sinh thái công cụ Owwi: quản lý tài chính, nén PDF và theo dõi hoạt động hằng ngày.",
-  openGraph: {
-    title: "Owwi — Những công cụ nhỏ cho cuộc sống nhẹ hơn",
-    description: "Owwi Money cùng hệ sinh thái công cụ nhỏ gọn cho tiền bạc, tài liệu và nhịp sống mỗi ngày.",
-    type: "website",
-    locale: "vi_VN",
-    url: "https://owwi.io.vn/",
-    images: [
-      {
-        url: "https://owwi.io.vn/og.png",
-        width: 1733,
-        height: 907,
-        alt: "Owwi — Những công cụ nhỏ cho cuộc sống nhẹ hơn",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Owwi — Những công cụ nhỏ cho cuộc sống nhẹ hơn",
-    description: "Owwi Money cùng hệ sinh thái công cụ nhỏ gọn cho cuộc sống mỗi ngày.",
-    images: ["https://owwi.io.vn/og.png"],
-  },
-}
 
 const moneyFeatures = [
   {
