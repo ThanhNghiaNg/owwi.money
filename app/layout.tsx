@@ -3,16 +3,15 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import "./animation.css"
-import { Sidebar } from "@/components/sidebar"
 import { ThemeProvider } from "@/contexts/theme-context"
 import { Toaster } from "react-hot-toast"
-import ClientWrapper from "@/components/client/client-wrapper"
+import RootShell from "@/components/client/root-shell"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "OwwiMoney",
-  description: "Multi-profile personal finance manager",
+  title: "Owwi Money",
+  description: "Quản lý tài chính cá nhân rõ ràng, nhẹ nhàng cùng hệ sinh thái Owwi.",
   manifest: "/manifest.json",
   icons: {
     icon: "/icons/favicon.ico",
@@ -37,12 +36,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <Toaster position="top-right" />
         <ThemeProvider>
-          <ClientWrapper>
-            <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
-              <Sidebar />
-              <main className="flex-1 overflow-auto lg:ml-0 w-full min-w-0 pb-20 lg:pb-0">{children}</main>
-            </div>
-          </ClientWrapper>
+          <RootShell>{children}</RootShell>
         </ThemeProvider>
       </body>
     </html>
