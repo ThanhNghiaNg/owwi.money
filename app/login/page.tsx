@@ -5,6 +5,8 @@ import type React from "react"
 import { useEffect, useState } from "react"
 import { useTheme } from "@/contexts/theme-context"
 import { mutation } from "@/api/mutate"
+import { keys as queryKeys } from "@/api/query"
+import queryClient from "@/api/queryClient"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/use-auth"
 import { ROUTES } from "@/utils/constants/routes"
@@ -16,10 +18,11 @@ import toast from "react-hot-toast"
 import { ERROR_MESSAGE } from "@/utils/constants/message"
 import { AxiosError } from "axios"
 import { useLanguage } from "@/contexts/language-context"
+import { DotLoader } from "@/components/ui/skeleton/dot-loader"
 
 function LoginPage() {
     const router = useRouter()
-    const { isAuth, needsProfileSelection, activeProfileId } = useAuth()
+    const { isAuth, isCheckingAuth, needsProfileSelection, activeProfileId } = useAuth()
     const { theme, toggleTheme } = useTheme()
     const { language, setLanguage, languages, t } = useLanguage()
 
@@ -28,15 +31,15 @@ function LoginPage() {
     const [errorMessage, setErrorMessage] = useState<string>();
 
     useEffect(() => {
-        if (!isAuth) return
+        if (isCheckingAuth || !isAuth) return
 
         if (needsProfileSelection || !activeProfileId) {
-            router.push(ROUTES.PROFILES_SELECT)
+            router.replace(ROUTES.PROFILES_SELECT)
             return
         }
 
-        router.push(ROUTES.DASHBOARD)
-    }, [isAuth, needsProfileSelection, activeProfileId, router])
+        router.replace(ROUTES.DASHBOARD)
+    }, [isAuth, isCheckingAuth, needsProfileSelection, activeProfileId, router])
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         try {
@@ -50,7 +53,7 @@ function LoginPage() {
             })
             if (res.sessionToken) {
                 localStorage.setItem(SESSION_ID, res.sessionToken)
-                router.push(ROUTES.PROFILES_SELECT)
+                await queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() })
             }
         } catch (error) {
             if (error instanceof AxiosError) {
@@ -67,7 +70,7 @@ function LoginPage() {
             const res = await loginGoogle({ credential })
             if (res.sessionToken) {
                 localStorage.setItem(SESSION_ID, res.sessionToken)
-                router.push(ROUTES.PROFILES_SELECT)
+                await queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() })
             }
         } catch (error) {
             if (error instanceof AxiosError) {
@@ -76,6 +79,15 @@ function LoginPage() {
             toast.error(t(ERROR_MESSAGE.SYSTEM_ERROR))
             console.error(error)
         }
+    }
+
+    if (isCheckingAuth || isAuth) {
+        return (
+            <div className="relative min-h-screen w-full" role="status" aria-busy="true">
+                <DotLoader />
+                <span className="sr-only">Đang tải...</span>
+            </div>
+        )
     }
 
     return (

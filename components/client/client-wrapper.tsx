@@ -10,6 +10,17 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import React, { JSX, useEffect } from 'react';
 import { FloatingQuickEntry } from './floating-quick-entry';
+import { DotLoader } from '@/components/ui/skeleton/dot-loader';
+import { AppStartupGuard } from './app-startup-guard';
+
+function FullPageLoader() {
+  return (
+    <div className="relative min-h-screen w-full" role="status" aria-busy="true">
+      <DotLoader />
+      <span className="sr-only">Đang tải...</span>
+    </div>
+  );
+}
 
 function ClientWrapper({ children }: { children: React.ReactNode }): JSX.Element {
   const router = useRouter();
@@ -49,17 +60,19 @@ function ClientWrapper({ children }: { children: React.ReactNode }): JSX.Element
   }, [router])
 
   if (isSettingUp) {
-    return <></>
+    return <FullPageLoader />
   }
 
   return (
     <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <ProfileProvider>
-          {children}
-          <FloatingQuickEntry />
-        </ProfileProvider>
-      </LanguageProvider>
+      <AppStartupGuard>
+        <LanguageProvider>
+          <ProfileProvider>
+            {children}
+            <FloatingQuickEntry />
+          </ProfileProvider>
+        </LanguageProvider>
+      </AppStartupGuard>
     </QueryClientProvider>
   );
 }

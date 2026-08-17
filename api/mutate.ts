@@ -99,11 +99,6 @@ export const mutation = {
       useMutation({
         mutationKey: MutationKey.user.login(),
         mutationFn: userLogin,
-        onSuccess: () => {
-          queryClient.invalidateQueries({
-            queryKey: queryKeys.userWhoami(),
-          });
-        }
       }),
     logout: (onSuccess: () => void, onError: () => void) =>
       useMutation({
@@ -131,7 +126,6 @@ export const mutation = {
       useMutation({
         mutationKey: MutationKey.user.googleLogin(),
         mutationFn: googleLogin,
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.userWhoami() })
       }),
     linkGoogle: () =>
       useMutation({

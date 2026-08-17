@@ -3,9 +3,11 @@ import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.share
 import { ERROR_MESSAGE } from "@/utils/constants/message";
 import toast from 'react-hot-toast';
 import { SESSION_ID } from '@/utils/constants/keys';
+import queryClient from '@/api/queryClient';
 
 let toastTimeout: NodeJS.Timeout | null = null;
 const interceptorIds = new WeakMap<AxiosInstance, { request: number; response: number }>();
+const USER_WHOAMI_QUERY_KEY = ['all', 'user', 'whoami'] as const;
 
 const showToastTimeout = (message: string) => {
     if (toastTimeout) {
@@ -29,9 +31,10 @@ export const setupAxiosInterceptors = (router: AppRouterInstance, axiosInstance:
             if (error.response?.status === 401) {
                 const isLoginPage = typeof window !== 'undefined' && window.location.pathname === '/login';
                 localStorage.removeItem(SESSION_ID);
+                queryClient.setQueryData(USER_WHOAMI_QUERY_KEY, { isLoggedIn: false });
 
                 if (!isLoginPage) {
-                    router.push("/login");
+                    router.replace("/login");
                     if (toastTimeout) {
                         clearTimeout(toastTimeout);
                     }
